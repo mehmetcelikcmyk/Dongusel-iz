@@ -1,0 +1,189 @@
+@model List<DonguselIz.Web.Services.SymbiosisMatchResult>
+@{
+    ViewData["Title"] = "Hammadde Pazarı & Endüstriyel Simbiyoz";
+    var query = ViewData["Query"]?.ToString();
+    var buyer = ViewBag.BuyerCompany as DonguselIz.Web.Models.Domain.Company;
+}
+
+<div class="page-wrap">
+    <div class="page-head">
+        <div>
+            <div class="page-eyebrow">Gaziantep OSB Endüstriyel Simbiyoz Ağı</div>
+            <h2 class="page-title">İkincil Hammadde Pazarı</h2>
+            <p class="page-sub">Görsel yapay zeka ile kaynağında doğrulanmış partiler, tesisinizin hammadde profiline göre eşleştirildi.</p>
+        </div>
+        <form method="get" class="inline-form">
+            <input type="text" name="q" value="@query" class="form-control" placeholder="Malzeme veya lot ara" style="width: 220px; padding: 0.45rem 0.7rem;" />
+            <button type="submit" class="btn btn-outline btn-sm">Ara</button>
+        </form>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null) { <div class="flash flash-ok">@TempData["SuccessMessage"]</div> }
+    @if (TempData["ErrorMessage"] != null) { <div class="flash flash-err">@TempData["ErrorMessage"]</div> }
+
+    @if (buyer != null)
+    {
+        <!-- Simbiyoz Bilgi Bandı -->
+        <div style="background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); color: white; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.75rem; box-shadow: 0 4px 12px rgba(6, 95, 70, 0.15); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                    <span style="background: #10b981; color: #064e3b; font-size: 0.7rem; font-weight: 800; padding: 0.2rem 0.5rem; border-radius: 4px; text-transform: uppercase;">
+                        Akıllı Simbiyoz Aktif
+                    </span>
+                    <span style="font-size: 0.85rem; font-weight: 600; opacity: 0.9;">@buyer.Name (@buyer.OsbRegion)</span>
+                </div>
+                <div style="font-size: 1.1rem; font-weight: 700;">Tesisinizin Hammadde Talebine Göre Önceliklendirildi</div>
+                <div style="font-size: 0.82rem; opacity: 0.85; margin-top: 0.25rem;">
+                    Tesis Profiliniz: <strong>@(string.IsNullOrEmpty(buyer.OutputMaterialTypes) ? "Belirtilmemiş" : buyer.OutputMaterialTypes)</strong>
+                </div>
+            </div>
+            <div style="text-align: right; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); padding: 0.65rem 1.1rem; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.15);">
+                <div style="font-size: 0.72rem; opacity: 0.85; text-transform: uppercase; font-weight: 600;">Pazardaki Parti Sayısı</div>
+                <div style="font-size: 1.4rem; font-weight: 800;">@Model.Count Parti</div>
+            </div>
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="panel-card">
+            <div class="empty-state">Şu an pazarda rezerve edilebilir parti bulunmuyor.</div>
+        </div>
+    }
+    else
+    {
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.4rem;">
+            @foreach (var item in Model)
+            {
+                var b = item.Batch;
+                var purityColor = b.PurityPercent >= 95 ? "#10b981" : b.PurityPercent >= 88 ? "#f59e0b" : "#ef4444";
+                
+                // Simbiyoz skor rengi
+                var scoreBg = item.MatchScore >= 80 ? "#ecfdf5" : item.MatchScore >= 60 ? "#fffbeb" : "#fef2f2";
+                var scoreBorder = item.MatchScore >= 80 ? "#a7f3d0" : item.MatchScore >= 60 ? "#fde68a" : "#fecaca";
+                var scoreText = item.MatchScore >= 80 ? "#065f46" : item.MatchScore >= 60 ? "#92400e" : "#991b1b";
+
+                <div class="panel-card market-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; border: 1px solid @scoreBorder; position: relative;">
+
+                    <!-- Üst: Görsel ve Simbiyoz Rozeti -->
+                    <div style="position: relative; height: 165px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); overflow: hidden;">
+                        @if (!string.IsNullOrEmpty(b.ImageBase64) && b.ImageBase64.StartsWith("data:image"))
+                        {
+                            <img src="@b.ImageBase64" alt="Numune Görseli"
+                                 style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9;" />
+                        }
+                        else
+                        {
+                            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;">
+                                <defs>
+                                    <pattern id="grid-@b.Id" width="24" height="24" patternUnits="userSpaceOnUse">
+                                        <path d="M 24 0 L 0 24 M 0 0 L 24 24" fill="none" stroke="#334155" stroke-width="1"/>
+                                    </pattern>
+                                </defs>
+                                <rect width="100%" height="100%" fill="url(#grid-@b.Id)" />
+                            </svg>
+                            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0.25rem;">
+                                <div style="font-size:2.2rem;">♻️</div>
+                                <div style="font-size:0.7rem;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;">Numune Görseli</div>
+                            </div>
+                        }
+
+                        <!-- Sol Üst: Simbiyoz Uyum Skoru -->
+                        <div style="position: absolute; top: 0.75rem; left: 0.75rem; background: @scoreBg; border: 1px solid @scoreBorder; border-radius: 8px; padding: 0.35rem 0.65rem; display: flex; align-items: center; gap: 0.4rem; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+                            <span style="font-size: 0.7rem; font-weight: 800; color: @scoreText;">SİMBİYOZ:</span>
+                            <span style="font-size: 0.88rem; font-weight: 900; color: @scoreText;">%@item.MatchScore</span>
+                        </div>
+
+                        <!-- Sağ Üst: Saflık Rozeti -->
+                        <div style="position:absolute;top:0.75rem;right:0.75rem;background:rgba(15,23,42,0.85);backdrop-filter:blur(4px);border-radius:9999px;padding:0.3rem 0.65rem;display:flex;align-items:center;gap:0.4rem;border:1px solid rgba(255,255,255,0.1);">
+                            <span style="width:8px;height:8px;border-radius:50%;background:@purityColor;display:inline-block;"></span>
+                            <span style="font-size:0.72rem;font-weight:700;color:@purityColor;">%@b.PurityPercent.ToString("0.0") Saflık</span>
+                        </div>
+
+                        <!-- Alt Bant: OSB Bölgesi ve Lojistik Mesafe -->
+                        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(15,23,42,0.92),transparent);padding:0.65rem 0.85rem 0.4rem;display:flex;justify-content:space-between;align-items:center;">
+                            <div style="font-size:0.72rem;color:#cbd5e1;font-weight:600;">@b.Company?.OsbRegion</div>
+                            <div style="font-size:0.68rem;color:#94a3b8;background:rgba(255,255,255,0.1);padding:0.15rem 0.45rem;border-radius:4px;">
+                                ~@item.EstimatedLogisticsDistanceKm km mesafe
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alt Gövde -->
+                    <div style="padding: 1.1rem; display:flex; flex-direction:column; gap:0.75rem; flex:1;">
+                        
+                        <!-- Lot ve Başlık -->
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
+                                <span style="font-family:var(--font-mono);font-size:0.7rem;color:#64748b;font-weight:700;">@b.LotNo</span>
+                                <span style="font-size:0.68rem; background:#f1f5f9; color:#475569; padding:0.15rem 0.45rem; border-radius:4px; font-weight:600;">
+                                    DPP Onaylı
+                                </span>
+                            </div>
+                            <h4 style="font-size:0.98rem;font-weight:800;color:var(--slate-900);line-height:1.3;margin:0 0 0.2rem 0;">@b.MaterialType</h4>
+                            <div style="font-size:0.78rem;color:#64748b;">@b.Company?.Name</div>
+                        </div>
+
+                        <!-- Simbiyoz Eşleşme Sebebi / Akıllı Özet -->
+                        <div style="background: @scoreBg; border-left: 3px solid @scoreText; padding: 0.55rem 0.75rem; border-radius: 0 6px 6px 0;">
+                            <div style="font-size: 0.72rem; font-weight: 700; color: @scoreText; margin-bottom: 0.15rem;">@item.AdvantageSummary</div>
+                            <div style="font-size: 0.72rem; color: #475569; line-height: 1.4;">
+                                @(item.Reasons.FirstOrDefault() ?? "Malzeme özellikleri ve OSB bölgesi altyapınıza uygundur.")
+                            </div>
+                        </div>
+
+                        <!-- 3'lü Metrik Çizelgesi -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem;background:#f8fafc;border-radius:8px;padding:0.6rem 0.65rem;border:1px solid #f1f5f9;">
+                            <div style="text-align:center;">
+                                <div style="font-size:0.62rem;color:#94a3b8;font-weight:700;text-transform:uppercase;">Net Miktar</div>
+                                <div style="font-size:0.86rem;font-weight:800;color:var(--slate-900);">@((b.WeightKg/1000).ToString("0.0")) t</div>
+                            </div>
+                            <div style="text-align:center;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
+                                <div style="font-size:0.62rem;color:#94a3b8;font-weight:700;text-transform:uppercase;">Kirlilik</div>
+                                <div style="font-size:0.86rem;font-weight:800;color:#f59e0b;">%@b.ContaminationPercent.ToString("0.0")</div>
+                            </div>
+                            <div style="text-align:center;">
+                                <div style="font-size:0.62rem;color:#94a3b8;font-weight:700;text-transform:uppercase;">Tasarruf</div>
+                                <div style="font-size:0.86rem;font-weight:800;color:#10b981;">@b.CarbonSavedTons.ToString("0.00") tCO2</div>
+                            </div>
+                        </div>
+
+                        <!-- Saha Notu -->
+                        @if (!string.IsNullOrWhiteSpace(b.Notes))
+                        {
+                            <div style="font-size:0.75rem;color:#64748b;line-height:1.4;background:#fff;border:1px dashed #cbd5e1;padding:0.45rem 0.65rem;border-radius:6px;">
+                                <strong>Saha Notu:</strong> @b.Notes
+                            </div>
+                        }
+
+                        <!-- Butonlar -->
+                        <div style="display:flex;gap:0.5rem;margin-top:auto;padding-top:0.5rem;">
+                            <a asp-controller="Batch" asp-action="Details" asp-route-id="@b.Id"
+                               class="btn btn-outline btn-sm" style="flex:1;font-size:0.76rem;justify-content:center;padding:0.45rem 0.6rem;">
+                                Pasaportu İncele
+                            </a>
+                            @if (ViewBag.CanReserve == true)
+                            {
+                                <form asp-controller="Market" asp-action="Reserve" method="post" style="flex:1.2;margin:0;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@b.Id" />
+                                    <button type="submit" class="btn btn-primary btn-sm"
+                                            style="width:100%;font-size:0.76rem;justify-content:center;padding:0.45rem 0.6rem;"
+                                            onclick="return confirm('@b.LotNo partisini firmanız adına rezerve etmek istiyor musunuz?');">
+                                        Rezerve Et
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="badge" style="flex:1.2;display:flex;align-items:center;justify-content:center;font-size:0.74rem;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:0.45rem 0.5rem;">
+                                    Pazarda Yayında
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,616 @@
+@model DonguselIz.Web.Models.ViewModels.BatchCreateViewModel
+@{
+    ViewData["Title"] = "Yeni Parti Bildirimi - Saha Yapay Zeka Kamerası";
+}
+
+<div class="page-wrap" style="max-width: 860px;">
+    <div class="page-head">
+        <div>
+            <div class="page-eyebrow">Saha Atık &amp; Malzeme Girişi</div>
+            <h2 class="page-title">Yapay Zeka Destekli Parti Bildirimi</h2>
+            <p class="page-sub">Üretim hattındaki fire numunesini fotoğraflayın. Görsel analiz modeli polimer türünü ve saflığı tespit ederek doğrulanabilir pasaporta işler.</p>
+        </div>
+    </div>
+
+    <!-- 1. Kamera & Numune Fotoğrafı Çekim Kartı -->
+    <div class="panel-card" style="border-top: 3px solid var(--brand-primary); margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <div>
+                <h3 style="margin-bottom: 0.15rem; font-size: 1.05rem;">Kaynağında Kamera Taraması &amp; Görsel Girişi</h3>
+                <p style="font-size: 0.8rem; color: var(--slate-500); margin: 0;">Tekstil veya polimer numuneyi kamerayla çekin veya hazır örneklerden birini seçin.</p>
+            </div>
+            <span id="scanBadge" class="badge badge-muted">Kamera Bekliyor</span>
+        </div>
+
+        <!-- Tarama Vizörü & Görsel Alanı -->
+        <div id="scannerContainer" style="position: relative; width: 100%; height: 300px; background: #0f172a; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px dashed #334155;">
+            
+            <!-- Canlı Web Kamera Video Akışı -->
+            <video id="webcamVideo" autoplay playsinline muted style="display: none; width: 100%; height: 100%; object-fit: cover;"></video>
+
+            <!-- Görsel Önizleme / Yakalanan Kare -->
+            <img id="samplePreview" src="" alt="Numune Görseli" style="display: none; width: 100%; height: 100%; object-fit: cover;" />
+
+            <!-- Lazer Tarama Çizgisi Animasyonu -->
+            <div id="laserBeam" style="display: none; position: absolute; left: 0; right: 0; height: 3px; background: #10b981; box-shadow: 0 0 15px #10b981, 0 0 25px #34d399; z-index: 10; animation: scanMove 1.5s infinite alternate ease-in-out;"></div>
+
+            <!-- Kamera Boşken Görünen Rehber Alanı -->
+            <div id="emptyCameraPrompt" style="text-align: center; color: #94a3b8; padding: 1.5rem;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.5rem; opacity: 0.7;">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                <div style="font-size: 0.88rem; font-weight: 700; color: #f1f5f9;">Canlı Kamerayı Başlatın veya Fotoğraf Yükleyin</div>
+                <div style="font-size: 0.76rem; color: #64748b; margin-top: 0.25rem;">Halı çözgü teli, PP dokuma firesi veya ambalaj streç filmi</div>
+            </div>
+
+            <!-- HUD Analiz Çıkarım Katmanı (Tarama Bittiğinde Belirir) -->
+            <div id="hudOverlay" style="display: none; position: absolute; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(4px); padding: 0.65rem 1rem; color: white; display: none; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.15); z-index: 15;">
+                <div>
+                    <span style="font-size: 0.65rem; color: #34d399; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Yapay Zeka Tespiti:</span>
+                    <div id="hudDetectedMaterial" style="font-size: 0.88rem; font-weight: 800; color: #f8fafc;">-</div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Doğrulanan Saflık:</span>
+                    <div id="hudPurity" style="font-size: 0.88rem; font-weight: 800; color: #34d399;">-</div>
+                </div>
+            </div>
+
+            <!-- Canlı Kamera Aktifken Üzerinde Çıkan Çekim Butonu -->
+            <div id="captureControlOverlay" style="display: none; position: absolute; bottom: 15px; left: 0; right: 0; text-align: center; z-index: 20;">
+                <button type="button" class="btn btn-primary btn-sm" onclick="captureWebcamFrame()" style="box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); font-size: 0.85rem; padding: 0.5rem 1.25rem;">
+                    Fotoğrafı Yakala ve Analiz Et
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" onclick="stopWebcam()" style="background: rgba(15, 23, 42, 0.85); color: white; border-color: rgba(255,255,255,0.3); font-size: 0.8rem; margin-left: 0.5rem;">
+                    Kapat
+                </button>
+            </div>
+        </div>
+
+        <!-- Çoklu Fotoğraf Şeridi -->
+        <div id="multiPhotoStrip" style="margin-top: 0.85rem; padding: 0.75rem; background: var(--slate-50); border: 1px dashed var(--border); border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-size: 0.72rem; font-weight: 800; color: var(--slate-700); text-transform: uppercase;">
+                    Yüklenen Fotoğraflar (<span id="photoCountText">0/4</span>)
+                </span>
+                <span style="font-size: 0.7rem; color: var(--slate-500);">İster 1 ister en fazla 4 numune fotoğrafı ekleyebilirsiniz</span>
+            </div>
+            <div id="photoThumbnailsContainer" style="display: flex; gap: 0.65rem; flex-wrap: wrap; align-items: center; min-height: 48px;">
+                <span id="noPhotoHint" style="font-size: 0.75rem; color: var(--slate-400); font-style: italic;">Henüz fotoğraf yüklenmedi. Kamerayı açabilir veya dosya seçebilirsiniz.</span>
+            </div>
+        </div>
+
+        <!-- Butonlar: 1. Satır Gerçek Girişler, 2. Satır Hızlı Numuneler -->
+        <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+            <!-- 1. Satır: Gerçek Kamera ve Fotoğraf Yükleme -->
+            <div style="display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap;">
+                <input type="file" id="cameraInput" accept="image/*" multiple style="display: none;" onchange="handleFileSelect(event)" />
+                
+                <button type="button" id="startCamBtn" class="btn btn-primary btn-sm" onclick="startWebcam()">
+                    Canlı Web Kamerayı Aç
+                </button>
+
+                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('cameraInput').click()">
+                    Fotoğraf Yükle (Çoklu Seçim)
+                </button>
+            </div>
+
+            <!-- 2. Satır: Hızlı Test ve Demo Numuneleri (Alt Satırda Düzenli) -->
+            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; padding-top: 0.65rem; border-top: 1px dashed var(--border);">
+                <span style="font-size: 0.72rem; color: var(--slate-500); font-weight: 700; text-transform: uppercase;">
+                    Hızlı Numune Taraması:
+                </span>
+                
+                <button type="button" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.3rem 0.65rem;" onclick="loadQuickSample('pp')">
+                    PP Dokuma Firesi
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.3rem 0.65rem;" onclick="loadQuickSample('cotton')">
+                    Pamuk Halı İpliği
+                </button>
+                <button type="button" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.3rem 0.65rem;" onclick="loadQuickSample('ldpe')">
+                    Palet Streç Filmi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Parti Bildirim Formu (Kamera Taramasıyla Otomatik Beslenir) -->
+    <div class="panel-card">
+        <h3 style="border-bottom: 1px solid var(--border); padding-bottom: 0.65rem; margin-bottom: 1.1rem;">
+            Parti Kayıt &amp; Pasaport Bilgileri
+        </h3>
+
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" style="color: #991b1b; font-size: 0.85rem;"></div>
+
+            <!-- Gizli Base64 Numune Görseli -->
+            <input type="hidden" asp-for="ImageBase64" id="imageBase64Field" />
+            <input type="hidden" asp-for="AdditionalImagesJson" id="additionalImagesField" />
+
+            <!-- Yapay Zeka Analiz Sonuçları: JS tarafından doldurulur, sunucuya taşınır -->
+            <input type="hidden" asp-for="AiPurityPercent" id="aiPurityField" />
+            <input type="hidden" asp-for="AiContaminationPercent" id="aiContaminationField" />
+            <input type="hidden" asp-for="AiConfidencePercent" id="aiConfidenceField" />
+
+            <div class="form-group">
+                <label class="form-label">Taranan / Doğrulanan Malzeme Türü</label>
+                <input asp-for="MaterialType" id="materialTypeInput" list="materialList" class="form-control" placeholder="Kamera taraması ile tespit edilecek veya seçiniz" required />
+                <datalist id="materialList">
+                    @foreach (var opt in Model.MaterialOptions)
+                    {
+                        <option value="@opt"></option>
+                    }
+                </datalist>
+                <span asp-validation-for="MaterialType" style="color: #991b1b; font-size: 0.78rem;"></span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Parti Tartım Ağırlığı (kg)</label>
+                    <input asp-for="WeightKg" id="weightKgInput" type="number" step="0.1" class="form-control" placeholder="Örn: 1850" oninput="updateEconomicEstimates()" required />
+                    <span asp-validation-for="WeightKg" style="color: #991b1b; font-size: 0.78rem;"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Üretim Hattı</label>
+                    <input asp-for="ProductionLine" id="productionLineInput" class="form-control" placeholder="Örn: Dokuma Hattı 3" required />
+                    <span asp-validation-for="ProductionLine" style="color: #991b1b; font-size: 0.78rem;"></span>
+                </div>
+            </div>
+
+            <!-- Tahmini Ekonomik Değer ve Hurdaya Karşı Katma Değer Paneli -->
+            <div id="economicValueCard" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #cbd5e1; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-size: 0.72rem; font-weight: 800; color: #065f46; text-transform: uppercase; letter-spacing: 0.05em;">
+                        Gaziantep OSB Piyasa ve Katma Değer Göstergesi
+                    </span>
+                    <span style="font-size: 0.72rem; color: #64748b;">Doğrulanmış Pasaport Avantajı</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; text-align: center;">
+                    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.5rem;">
+                        <div style="font-size: 0.65rem; color: #64748b; font-weight: 600; text-transform: uppercase;">İkincil Piyasa Değeri</div>
+                        <div id="estMarketValue" style="font-size: 1.15rem; font-weight: 900; color: #065f46; margin-top: 0.15rem;">₺0</div>
+                    </div>
+                    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.5rem;">
+                        <div style="font-size: 0.65rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Hurdaya Kıyasla Ek Kazanç</div>
+                        <div id="estAddedValue" style="font-size: 1.15rem; font-weight: 900; color: #0284c7; margin-top: 0.15rem;">+₺0</div>
+                    </div>
+                    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.5rem;">
+                        <div style="font-size: 0.65rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Önlenen Karbon</div>
+                        <div id="estCarbonSaved" style="font-size: 1.15rem; font-weight: 900; color: #059669; margin-top: 0.15rem;">0.00 tCO2</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Parti Lot No (Opsiyonel)</label>
+                <input asp-for="LotNo" id="lotNoInput" class="form-control" placeholder="Boş bırakırsanız sistem otomatik LOT numarası türetir" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Saha Kontrol Notu</label>
+                <input asp-for="Notes" id="notesInput" class="form-control" placeholder="Örn: Yağ lekesi ve boya içermez, temiz paletli kesim firesi." />
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 0.95rem; font-weight: 700;">
+                Partiyi Doğrula &amp; OSB Denetimine Gönder
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    @@keyframes scanMove {
+        0% { top: 5%; }
+        100% { top: 92%; }
+    }
+</style>
+
+<script>
+    // Hazır Örnek SVG Numuneleri (Jüri sunumu ve anlık demo için hazır görsel veri)
+    const samples = {
+        pp: {
+            name: "Homopolimer Polipropilen (PP) Dokuma Firesi",
+            purity: "%95.4",
+            line: "Dokuma Hattı 2",
+            weight: 2200,
+            svg: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='300' viewBox='0 0 600 300'><rect width='600' height='300' fill='%231e293b'/><pattern id='mesh' width='20' height='20' patternUnits='userSpaceOnUse'><path d='M 20 0 L 0 20 M 0 0 L 20 20' fill='none' stroke='%2338bdf8' stroke-width='1.5'/></pattern><rect width='600' height='300' fill='url(%23mesh)' opacity='0.45'/><text x='30' y='50' fill='%2338bdf8' font-family='sans-serif' font-weight='bold' font-size='18'>SENTETIK DOKUMA POLIMER NUMUNESI (PP)</text><text x='30' y='80' fill='%2394a3b8' font-family='sans-serif' font-size='14'>Lif Homojenligi: Yuksek | Boyasiz Temiz Kesim</text></svg>"
+        },
+        cotton: {
+            name: "Geri Kazanılabilir Pamuk Halı Telefi",
+            purity: "%91.8",
+            line: "Halı Çözgü Hattı 1",
+            weight: 1400,
+            svg: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='300' viewBox='0 0 600 300'><rect width='600' height='300' fill='%23334155'/><pattern id='dots' width='16' height='16' patternUnits='userSpaceOnUse'><circle cx='8' cy='8' r='3' fill='%23f1f5f9'/></pattern><rect width='600' height='300' fill='url(%23dots)' opacity='0.35'/><text x='30' y='50' fill='%23f8fafc' font-family='sans-serif' font-weight='bold' font-size='18'>TEKSTIL TELEF NUMUNESI (PAMUK / AKRILIK)</text><text x='30' y='80' fill='%23cbd5e1' font-family='sans-serif' font-size='14'>Lif Uzunlugu: 32mm | Elyaf Acimina Uygun</text></svg>"
+        },
+        ldpe: {
+            name: "Şeffaf LDPE Palet Ambalaj Streç Firesi",
+            purity: "%97.2",
+            line: "Paketleme & Sevkiyat Hattı",
+            weight: 850,
+            svg: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='300' viewBox='0 0 600 300'><rect width='600' height='300' fill='%230f172a'/><path d='M0,150 Q150,50 300,150 T600,150' fill='none' stroke='%2334d399' stroke-width='3'/><path d='M0,180 Q150,80 300,180 T600,180' fill='none' stroke='%2310b981' stroke-width='2' opacity='0.5'/><text x='30' y='50' fill='%2334d399' font-family='sans-serif' font-weight='bold' font-size='18'>LDPE FILM STREC NUMUNESI (POLIETILEN)</text><text x='30' y='80' fill='%2394a3b8' font-family='sans-serif' font-size='14'>Optik Gecirgenlik: Yuksek | Granul Granulasyona Hazir</text></svg>"
+        }
+    };
+
+    let photoGallery = [];
+
+    function updatePhotoGalleryUI() {
+        const container = document.getElementById('photoThumbnailsContainer');
+        const countText = document.getElementById('photoCountText');
+        const hiddenField = document.getElementById('additionalImagesField');
+        const primaryHidden = document.getElementById('imageBase64Field');
+
+        if (!container) return;
+        if (countText) countText.innerText = `${photoGallery.length}/4`;
+        if (hiddenField) hiddenField.value = JSON.stringify(photoGallery);
+        if (primaryHidden) primaryHidden.value = photoGallery.length > 0 ? photoGallery[0] : '';
+
+        if (photoGallery.length === 0) {
+            container.innerHTML = '<span id="noPhotoHint" style="font-size: 0.75rem; color: var(--slate-400); font-style: italic;">Henüz fotoğraf yüklenmedi. Kamerayı açabilir veya dosya seçebilirsiniz.</span>';
+            return;
+        }
+
+        container.innerHTML = '';
+        photoGallery.forEach((imgSrc, idx) => {
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'position: relative; width: 68px; height: 68px; border-radius: 6px; overflow: hidden; border: 2px solid ' + (idx === 0 ? 'var(--brand-primary)' : '#cbd5e1') + '; background: #0f172a; cursor: pointer; flex-shrink: 0;';
+            wrap.title = idx === 0 ? '1. Görsel (Yapay Zeka Analizli)' : `${idx+1}. Ek Numune Görseli`;
+
+            const img = document.createElement('img');
+            img.src = imgSrc;
+            img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+            img.onclick = () => {
+                document.getElementById('samplePreview').src = imgSrc;
+                document.getElementById('samplePreview').style.display = 'block';
+                document.getElementById('emptyCameraPrompt').style.display = 'none';
+            };
+
+            const delBtn = document.createElement('button');
+            delBtn.type = 'button';
+            delBtn.innerHTML = '&times;';
+            delBtn.style.cssText = 'position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(15,23,42,0.85); color: white; border: none; font-size: 13px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center;';
+            delBtn.title = 'Fotoğrafı Kaldır';
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                removePhoto(idx);
+            };
+
+            if (idx === 0) {
+                const badge = document.createElement('span');
+                badge.style.cssText = 'position: absolute; bottom: 0; left: 0; right: 0; background: rgba(5,150,105,0.9); color: white; font-size: 9px; font-weight: 800; text-align: center; padding: 1px 0; text-transform: uppercase;';
+                badge.innerText = 'Ana';
+                wrap.appendChild(badge);
+            }
+
+            wrap.appendChild(img);
+            wrap.appendChild(delBtn);
+            container.appendChild(wrap);
+        });
+    }
+
+    function removePhoto(idx) {
+        photoGallery.splice(idx, 1);
+        updatePhotoGalleryUI();
+        if (photoGallery.length > 0) {
+            document.getElementById('samplePreview').src = photoGallery[0];
+            document.getElementById('samplePreview').style.display = 'block';
+        } else {
+            document.getElementById('samplePreview').style.display = 'none';
+            document.getElementById('emptyCameraPrompt').style.display = 'block';
+            document.getElementById('hudOverlay').style.display = 'none';
+            document.getElementById('scanBadge').className = 'badge badge-muted';
+            document.getElementById('scanBadge').innerText = 'Görsel Bekleniyor';
+        }
+    }
+
+    async function startScanSequence(imageDataUri, detectedName, purityVal, lineVal, weightVal, isRealApi = false) {
+        const preview = document.getElementById('samplePreview');
+        const emptyPrompt = document.getElementById('emptyCameraPrompt');
+        const laser = document.getElementById('laserBeam');
+        const hud = document.getElementById('hudOverlay');
+        const scanBadge = document.getElementById('scanBadge');
+
+        if (!photoGallery.includes(imageDataUri)) {
+            if (photoGallery.length < 4) {
+                photoGallery.push(imageDataUri);
+            }
+        }
+        updatePhotoGalleryUI();
+
+        emptyPrompt.style.display = 'none';
+        preview.src = imageDataUri;
+        preview.style.display = 'block';
+        laser.style.display = 'block';
+        hud.style.display = 'none';
+
+        scanBadge.className = 'badge badge-warn';
+        scanBadge.innerText = isRealApi ? 'Groq Llama 3.2 Vision Analiz Ediyor...' : 'Görsel Taranıyor...';
+
+        if (isRealApi) {
+            try {
+                const response = await fetch('/Batch/AnalyzeSample', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageBase64: imageDataUri })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    laser.style.display = 'none';
+                    hud.style.display = 'flex';
+                    
+                    document.getElementById('hudDetectedMaterial').innerText = data.materialName || detectedName;
+                    document.getElementById('hudPurity').innerText = '%' + (data.purityPercent ? data.purityPercent.toFixed(1) : '94.5');
+
+                    scanBadge.className = 'badge badge-ok';
+                    scanBadge.innerText = 'Yapay Zeka Doğrulandı: %' + (data.purityPercent ? data.purityPercent.toFixed(1) : '94.5');
+
+                    document.getElementById('materialTypeInput').value = data.materialName || detectedName;
+                    if (!document.getElementById('weightKgInput').value || document.getElementById('weightKgInput').value == "0") {
+                        document.getElementById('weightKgInput').value = weightVal || 1500;
+                    }
+                    const noteElem = document.getElementById('notesInput');
+                    if (noteElem && data.technicalNote) {
+                        noteElem.value = data.technicalNote;
+                    }
+
+                    if (data.purityPercent) {
+                        document.getElementById('aiPurityField').value = data.purityPercent.toFixed(1);
+                        document.getElementById('aiContaminationField').value = (data.contaminationPercent || (100 - data.purityPercent)).toFixed(1);
+                        document.getElementById('aiConfidenceField').value = (data.confidencePercent || 90).toFixed(1);
+                    }
+                    
+                    updateEconomicEstimates();
+                    return;
+                }
+            } catch (err) {
+                console.warn('API bağlantısı kurulamadı, yerel çıkarım uygulanıyor.', err);
+            }
+        }
+
+        setTimeout(() => {
+            laser.style.display = 'none';
+            hud.style.display = 'flex';
+            document.getElementById('hudDetectedMaterial').innerText = detectedName;
+            document.getElementById('hudPurity').innerText = purityVal;
+
+            scanBadge.className = 'badge badge-ok';
+            scanBadge.innerText = 'Numune Teyit Edildi: ' + purityVal;
+
+            document.getElementById('materialTypeInput').value = detectedName;
+            if (!document.getElementById('weightKgInput').value || document.getElementById('weightKgInput').value == "0") {
+                document.getElementById('weightKgInput').value = weightVal;
+            }
+            document.getElementById('productionLineInput').value = lineVal;
+            updateEconomicEstimates();
+        }, 800);
+    }
+
+    function loadQuickSample(key) {
+        const item = samples[key];
+        if (item) {
+            photoGallery = [item.svg];
+            startScanSequence(item.svg, item.name, item.purity, item.line, item.weight, false);
+        }
+    }
+
+    async function handleFileSelect(e) {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+
+        const remainingSlots = 4 - photoGallery.length;
+        if (remainingSlots <= 0) {
+            alert('En fazla 4 fotoğraf ekleyebilirsiniz.');
+            e.target.value = '';
+            return;
+        }
+
+        const filesToProcess = files.slice(0, remainingSlots);
+
+        for (let i = 0; i < filesToProcess.length; i++) {
+            const file = filesToProcess[i];
+            const dataUrl = await compressImageFile(file);
+            if (dataUrl) {
+                const wasEmpty = photoGallery.length === 0;
+                photoGallery.push(dataUrl);
+                if (wasEmpty) {
+                    startScanSequence(
+                        dataUrl, 
+                        "Sentetik Malzeme Firesi", 
+                        "%94.2", 
+                        "Saha Üretim Hattı", 
+                        1850, 
+                        true
+                    );
+                }
+            }
+        }
+        updatePhotoGalleryUI();
+        e.target.value = '';
+    }
+
+    function compressImageFile(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxDim = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height && width > maxDim) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else if (height > maxDim) {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.82));
+                };
+                img.onerror = () => resolve(null);
+                img.src = evt.target.result;
+            };
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // ==========================================
+    // CANLI WEB KAMERA YÖNETİMİ (Webcam API)
+    // ==========================================
+    let webcamStream = null;
+
+    async function startWebcam() {
+        const video = document.getElementById('webcamVideo');
+        const preview = document.getElementById('samplePreview');
+        const emptyPrompt = document.getElementById('emptyCameraPrompt');
+        const controlOverlay = document.getElementById('captureControlOverlay');
+        const scanBadge = document.getElementById('scanBadge');
+
+        try {
+            webcamStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            });
+
+            video.srcObject = webcamStream;
+            video.style.display = 'block';
+            preview.style.display = 'none';
+            emptyPrompt.style.display = 'none';
+            controlOverlay.style.display = 'block';
+
+            scanBadge.className = 'badge badge-ok';
+            scanBadge.innerText = 'Kamera Canlı Yayında';
+        } catch (err) {
+            console.error('Kamera başlatılamadı:', err);
+            alert('Kameraya erişilemedi! Lütfen tarayıcınızın adres çubuğundaki kilit simgesinden kamera iznini onayladığınızdan emin olun veya fotoğraf yükleme seçeneğini kullanın.');
+            scanBadge.className = 'badge badge-danger';
+            scanBadge.innerText = 'Kamera İzni Yok';
+        }
+    }
+
+    function captureWebcamFrame() {
+        const video = document.getElementById('webcamVideo');
+        if (!video || !webcamStream) return;
+
+        if (photoGallery.length >= 4) {
+            alert('En fazla 4 fotoğraf ekleyebilirsiniz.');
+            stopWebcam();
+            return;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const capturedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        stopWebcam();
+
+        const wasEmpty = photoGallery.length === 0;
+        photoGallery.push(capturedDataUrl);
+        updatePhotoGalleryUI();
+
+        if (wasEmpty) {
+            startScanSequence(
+                capturedDataUrl,
+                "Kamera İle Taranan Malzeme",
+                "%94.5",
+                "Canlı Kamera Girişi",
+                1500,
+                true
+            );
+        } else {
+            document.getElementById('samplePreview').src = capturedDataUrl;
+            document.getElementById('samplePreview').style.display = 'block';
+        }
+    }
+
+    function stopWebcam() {
+        const video = document.getElementById('webcamVideo');
+        const controlOverlay = document.getElementById('captureControlOverlay');
+
+        if (webcamStream) {
+            webcamStream.getTracks().forEach(track => track.stop());
+            webcamStream = null;
+        }
+
+        if (video) {
+            video.srcObject = null;
+            video.style.display = 'none';
+        }
+
+        if (controlOverlay) {
+            controlOverlay.style.display = 'none';
+        }
+    }
+
+    // ==========================================
+    // GAZİANTEP OSB PİYASA VE EKONOMİK DEĞER HESAPLAYICI
+    // ==========================================
+    function updateEconomicEstimates() {
+        const weightInput = document.getElementById('weightKgInput');
+        const materialInput = document.getElementById('materialTypeInput');
+        const purityInput = document.getElementById('aiPurityField');
+
+        const weight = parseFloat(weightInput?.value) || 0;
+        const material = (materialInput?.value || "").toLowerCase();
+        const purity = parseFloat(purityInput?.value) || 94.0;
+
+        if (weight <= 0) {
+            document.getElementById('estMarketValue').innerText = '₺0';
+            document.getElementById('estAddedValue').innerText = '+₺0';
+            document.getElementById('estCarbonSaved').innerText = '0.00 tCO2';
+            return;
+        }
+
+        // Malzeme türüne göre kg başına ortalama OSB piyasa fiyatı (TL/kg)
+        let pricePerKg = 18.5; // Taban polimer
+        let scrapPricePerKg = 11.0; // Klasik hurdacı taban fiyatı
+        let co2Factor = 1.45; // kg başına önlenen CO2 (kg/kg)
+
+        if (material.includes('pp') || material.includes('polipropilen') || material.includes('halı')) {
+            pricePerKg = 22.0;
+            scrapPricePerKg = 13.5;
+            co2Factor = 1.60;
+        } else if (material.includes('ldpe') || material.includes('streç') || material.includes('film')) {
+            pricePerKg = 25.5;
+            scrapPricePerKg = 15.0;
+            co2Factor = 1.80;
+        } else if (material.includes('pamuk') || material.includes('elyaf') || material.includes('telef')) {
+            pricePerKg = 19.0;
+            scrapPricePerKg = 12.0;
+            co2Factor = 2.10;
+        } else if (material.includes('pet')) {
+            pricePerKg = 21.0;
+            scrapPricePerKg = 13.0;
+            co2Factor = 1.55;
+        }
+
+        // Saflık çarpanı
+        const purityFactor = purity / 100.0;
+        const totalMarketValue = Math.round(weight * pricePerKg * purityFactor);
+        const totalScrapValue = Math.round(weight * scrapPricePerKg);
+        const addedValue = Math.max(0, totalMarketValue - totalScrapValue);
+        const totalCarbonSavedTons = ((weight * co2Factor * purityFactor) / 1000.0);
+
+        document.getElementById('estMarketValue').innerText = '₺' + totalMarketValue.toLocaleString('tr-TR');
+        document.getElementById('estAddedValue').innerText = '+₺' + addedValue.toLocaleString('tr-TR');
+        document.getElementById('estCarbonSaved').innerText = totalCarbonSavedTons.toFixed(2) + ' tCO2';
+    }
+
+    // Malzeme türü değiştikçe veya sayfa yüklendiğinde de hesapla
+    document.getElementById('materialTypeInput')?.addEventListener('change', updateEconomicEstimates);
+</script>

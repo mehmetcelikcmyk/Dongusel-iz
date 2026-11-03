@@ -1,0 +1,263 @@
+@model DonguselIz.Web.Models.ViewModels.CompanyEditViewModel
+@{
+    ViewData["Title"] = $"{Model.Name} - Tesis ve Personel Yönetimi";
+}
+
+<div style="max-width: 1200px; margin: 1.5rem auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+        <div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--brand-primary); text-transform: uppercase;">Tesis Detayı &amp; Düzenleme</div>
+            <h2 style="font-size: 1.35rem; color: var(--slate-900); margin-top: 0.2rem;">@Model.Name</h2>
+        </div>
+        <a asp-action="Companies" class="btn btn-outline btn-sm">Tesis Masasına Dön</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1.5rem;">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1.5rem;">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- 1. Tesis Bilgileri ve Çıktı Düzenleme -->
+        <div class="card" style="border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; background: var(--white);">
+            <h3 style="font-size: 1.1rem; color: var(--slate-900); border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+                Tesis Çıktı ve Kimlik Bilgilerini Düzenle
+            </h3>
+
+            <form asp-action="EditCompany" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="form-group">
+                    <label class="form-label">Firma Resmi Adı</label>
+                    <input asp-for="Name" class="form-control" required />
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">VKN (10 Hane)</label>
+                        <input asp-for="TaxNumber" class="form-control" maxlength="10" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">OSB Bölgesi</label>
+                        <select asp-for="OsbRegion" class="form-control">
+                            <option value="Gaziantep OSB 1. Bölge">Gaziantep OSB 1. Bölge</option>
+                            <option value="Gaziantep OSB 2. Bölge">Gaziantep OSB 2. Bölge</option>
+                            <option value="Gaziantep OSB 3. Bölge">Gaziantep OSB 3. Bölge</option>
+                            <option value="Gaziantep OSB 4. Bölge">Gaziantep OSB 4. Bölge</option>
+                            <option value="Gaziantep OSB 5. Bölge">Gaziantep OSB 5. Bölge</option>
+                            <option value="Küsget Sanayi Sitesi">Küsget Sanayi Sitesi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Tesis Çıktı / Fire Türleri</label>
+                        <input asp-for="OutputMaterialTypes" class="form-control" placeholder="Örn: PP Dokuma Firesi, Penye Telefi" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Aylık Çıktı (Ton)</label>
+                        <input asp-for="MonthlyOutputCapacityTons" type="number" step="0.1" class="form-control" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tesis Açık Adresi</label>
+                    <input asp-for="FacilityAddress" class="form-control" placeholder="OSB Cadde ve Kapı No" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Sistem Rolü</label>
+                    <select asp-for="PrimaryRole" class="form-control">
+                        <option value="@DonguselIz.Web.Models.Enums.UserRole.WasteGenerator">Üretici Tesis (Fire Çıkışı)</option>
+                        <option value="@DonguselIz.Web.Models.Enums.UserRole.RecyclerBuyer">Geri Dönüşümcü (Hammadde Alımı)</option>
+                        <option value="@DonguselIz.Web.Models.Enums.UserRole.OsbAuditor">OSB &amp; Karbon Denetçisi</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+                    Tesis Bilgilerini Kaydet
+                </button>
+            </form>
+        </div>
+
+        <!-- 2. Şirkete Bağlı Personel Listesi ve Yeni Personel Ekleme -->
+        <div>
+            <!-- Yeni Personel Ekleme Formu -->
+            <div class="card" style="border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; background: var(--white); margin-bottom: 1.5rem;">
+                <h4 style="font-size: 1rem; color: var(--slate-900); margin-bottom: 1rem;">Tesise Yeni Personel / Mühendis Tanımla</h4>
+
+                <form asp-action="AddEmployee" method="post">
+                    <input type="hidden" name="CompanyId" value="@Model.Id" />
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label class="form-label">Personel Adı Soyadı</label>
+                            <input name="FullName" class="form-control" placeholder="Ad Soyad" required />
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label class="form-label">Kurumsal E-Posta</label>
+                            <input name="Email" class="form-control" placeholder="personel@fabrika.com.tr" required />
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label class="form-label">Görevi / Ünvanı</label>
+                            <input name="Title" class="form-control" value="Vardiya ve Atık Sorumlusu" required />
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label class="form-label">Giriş Şifresi</label>
+                            <div class="password-field-wrapper">
+                                <input name="Password" type="password" class="form-control" placeholder="Şifre" required />
+                                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" title="Şifreyi Göster veya Gizle" aria-label="Şifreyi Göster">
+                                    <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    <svg class="eye-closed" style="display: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-outline btn-sm" style="width: 100%;">
+                        + Personeli Tesise Ata
+                    </button>
+                </form>
+            </div>
+
+            <!-- Kayıtlı Personeller Listesi ve Düzenleme Arayüzü -->
+            <div class="card" style="border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; background: var(--white);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <h4 style="font-size: 1rem; color: var(--slate-900); margin: 0;">
+                        Tanımlı Tesis Personelleri (@Model.Employees.Count)
+                    </h4>
+                    <span style="font-size: 0.72rem; color: var(--slate-500);">Düzenlemek için satıra tıklayınız</span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    @foreach (var emp in Model.Employees)
+                    {
+                        var editFormId = $"edit-emp-{emp.Id}";
+
+                        <div style="background-color: var(--slate-50); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1rem;">
+                            <!-- Üst Satır: Bilgi ve Eylemler -->
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-size: 0.9rem; font-weight: 700; color: var(--slate-900); display: flex; align-items: center; gap: 0.5rem;">
+                                        @emp.FullName
+                                        @if (emp.IsCompanyManager)
+                                        {
+                                            <span style="font-size: 0.65rem; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700;">
+                                                Ana Yönetici
+                                            </span>
+                                        }
+                                    </div>
+                                    <div style="font-size: 0.76rem; color: var(--slate-600); margin-top: 0.15rem;">
+                                        @emp.Title · <span style="font-family: var(--font-mono);">@emp.Email</span>
+                                        @if (!string.IsNullOrEmpty(emp.PhoneNumber))
+                                        {
+                                            <span>· @emp.PhoneNumber</span>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <button type="button" class="btn btn-outline btn-sm" style="font-size: 0.72rem; padding: 0.3rem 0.6rem;" onclick="toggleEditEmp('@editFormId')">
+                                        Düzenle
+                                    </button>
+
+                                    @if (Model.Employees.Count > 1 && !emp.IsCompanyManager)
+                                    {
+                                        <form asp-action="DeleteEmployee" method="post" style="margin: 0;" onsubmit="return confirm('@emp.FullName personelinin sistem erişimini kaldırmak istediğinize emin misiniz?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="employeeId" value="@emp.Id" />
+                                            <input type="hidden" name="companyId" value="@Model.Id" />
+                                            <button type="submit" class="btn btn-outline btn-sm" style="font-size: 0.72rem; padding: 0.3rem 0.6rem; color: var(--status-danger); border-color: #fecaca;">
+                                                Sil
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Genişleyen Düzenleme Paneli -->
+                            <div id="@editFormId" style="display: none; margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid var(--border);">
+                                <form asp-action="UpdateEmployee" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="EmployeeId" value="@emp.Id" />
+                                    <input type="hidden" name="CompanyId" value="@Model.Id" />
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 0.6rem;">
+                                        <div>
+                                            <label class="form-label" style="font-size: 0.72rem;">Ad Soyad</label>
+                                            <input name="FullName" value="@emp.FullName" class="form-control" style="font-size: 0.82rem; padding: 0.35rem 0.5rem;" required />
+                                        </div>
+                                        <div>
+                                            <label class="form-label" style="font-size: 0.72rem;">Görevi / Ünvanı</label>
+                                            <input name="Title" value="@emp.Title" class="form-control" style="font-size: 0.82rem; padding: 0.35rem 0.5rem;" required />
+                                        </div>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 0.75rem;">
+                                        <div>
+                                            <label class="form-label" style="font-size: 0.72rem;">Telefon Numarası</label>
+                                            <input name="PhoneNumber" value="@emp.PhoneNumber" class="form-control" style="font-size: 0.82rem; padding: 0.35rem 0.5rem;" placeholder="05XX XXX XX XX" />
+                                        </div>
+                                        <div>
+                                            <label class="form-label" style="font-size: 0.72rem;">Yeni Şifre - Boş bırakılırsa değişmez</label>
+                                            <div class="password-field-wrapper">
+                                                <input name="Password" type="password" class="form-control" style="font-size: 0.82rem; padding: 0.35rem 0.5rem;" placeholder="Yeni şifre belirle" />
+                                                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" title="Şifreyi Göster veya Gizle" aria-label="Şifreyi Göster">
+                                                    <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                        <circle cx="12" cy="12" r="3"></circle>
+                                                    </svg>
+                                                    <svg class="eye-closed" style="display: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                                        <button type="button" class="btn btn-outline btn-sm" style="font-size: 0.72rem; padding: 0.3rem 0.6rem;" onclick="toggleEditEmp('@editFormId')">
+                                            İptal
+                                        </button>
+                                        <button type="submit" class="btn btn-primary btn-sm" style="font-size: 0.72rem; padding: 0.3rem 0.75rem;">
+                                            Değişiklikleri Kaydet
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleEditEmp(id) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+</script>

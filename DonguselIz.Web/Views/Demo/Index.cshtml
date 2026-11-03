@@ -1,0 +1,411 @@
+@{
+    ViewData["Title"] = "Gaziantep OSB Dijital Malzeme Pasaportu Ekosistemi";
+}
+
+<!-- 1. Hero Bölümü: Keskin, Olgun ve Ciddi Karşılama -->
+<section class="hero-section">
+    <div class="hero-container">
+        <div>
+            <div class="hero-tag">Gaziantep Organize Sanayi Bölgesi · İkincil Hammadde Altyapısı</div>
+            <h1 class="hero-title">Sanayi atıklarını kaynağında doğrulayan dijital malzeme pasaportu.</h1>
+            <p class="hero-desc">
+                Gaziantep sanayisinde üretim hatlarından çıkan polimer, tekstil ve ambalaj firelerini görsel yapay zeka ile kaynağında sınıflandırıyor, her partiye uluslararası standartlarda dijital kimlik atayarak doğrulanabilir bir ikincil hammadde döngüsü kuruyoruz.
+            </p>
+            <div class="hero-actions">
+                <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Kurumsal Sisteme Giriş</a>
+                <a href="#isleyis" class="btn btn-outline">İşleyiş Mimarisini İncele</a>
+            </div>
+        </div>
+
+        <!-- Sağ Taraf: Standartlara Uygun Resmi Malzeme Pasaportu Şeması -->
+        <div class="passport-specimen">
+            <div class="specimen-header">
+                <div>
+                    <span style="font-size: 0.7rem; color: var(--slate-400); text-transform: uppercase; display: block;">Resmi Parti Kimliği</span>
+                    <span class="specimen-code">DPP-GAZ-2026-PP883</span>
+                </div>
+                <span class="specimen-badge">AB ESPR Uyumlu</span>
+            </div>
+            <div class="specimen-body">
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.05em;">Görsel Çıkarım ile Doğrulandı</div>
+                <h3 style="font-size: 1.25rem; color: var(--slate-900); margin-top: 0.25rem;">Homopolimer Polipropilen Dokuma Firesi</h3>
+                <p style="font-size: 0.85rem; color: var(--slate-600); margin-top: 0.35rem;">
+                    Halı altı çözgü ve atkı firesi. Boyasız, temiz mekanik kesim numune.
+                </p>
+
+                <div class="specimen-grid">
+                    <div class="specimen-item">
+                        <label>Doğrulanan Saflık</label>
+                        <span style="color: var(--brand-primary);">%94.8 Saf Polimer</span>
+                    </div>
+                    <div class="specimen-item">
+                        <label>Kirlilik / Nem</label>
+                        <span>%5.2 Geri Dönüşüme Uygun</span>
+                    </div>
+                    <div class="specimen-item">
+                        <label>Önlenen Karbon Salımı</label>
+                        <span style="color: var(--status-success);">2.10 tCO2e / Parti</span>
+                    </div>
+                    <div class="specimen-item">
+                        <label>Menşe Fabrika</label>
+                        <span>Gaziantep OSB 4. Bölge</span>
+                    </div>
+                </div>
+
+                <div style="background-color: var(--slate-50); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1rem; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="font-size: 0.78rem; color: var(--slate-600);">
+                        <strong>Taranabilir Karekod Zinciri</strong> Gümrük, OSB Denetimi ve İkincil Alıcı Doğrulaması Aktif
+                    </div>
+                    <span style="font-family: var(--font-mono); font-size: 0.75rem; background: var(--slate-200); padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 700;">QR VERIFIED</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Gaziantep OSB Saha ve Sanayi Vitrini -->
+<section class="section" style="padding-top: 2rem; padding-bottom: 2.5rem; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);">
+    <div class="section-container">
+        <div class="section-header" style="text-align: left; margin-bottom: 1.75rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <span class="section-tag" style="margin-bottom: 0.35rem;">Saha ve Bölge Ölçeği</span>
+                    <h2 class="section-title" style="font-size: 1.65rem; margin-bottom: 0.35rem;">Gaziantep OSB 5 Bölgede Aktif Döngüsel Akış</h2>
+                    <p class="section-subtitle" style="font-size: 0.92rem; margin: 0;">
+                        Türkiye'nin en büyük organize sanayi bölgesinde tekstil, polipropilen ve ambalaj hatlarının atıklarını kaynağında hammaddeye dönüştüren altyapı.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; text-align: center;">
+                        <span style="font-size: 1.25rem; font-weight: 800; color: var(--brand-primary); display: block;">43.250.000 m²</span>
+                        <span style="font-size: 0.72rem; color: var(--slate-500); font-weight: 600;">Sanayi Alanı</span>
+                    </div>
+                    <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; text-align: center;">
+                        <span style="font-size: 1.25rem; font-weight: 800; color: #0284c7; display: block;">1.200+</span>
+                        <span style="font-size: 0.72rem; color: var(--slate-500); font-weight: 600;">Üretici Tesis</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="responsive-grid-3">
+            <!-- Kart 1: OSB Panoraması -->
+            <div style="background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column;">
+                <div style="position: relative; height: 190px; overflow: hidden; background: #0f172a;">
+                    <img src="~/images/osb/osb-aerial.jpg" alt="Gaziantep OSB Sanayi Kuşağı" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+                    <span style="position: absolute; top: 10px; left: 10px; background: rgba(15, 23, 42, 0.85); color: white; font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 4px; backdrop-filter: blur(4px);">
+                        Gaziantep OSB 1-5. Bölge
+                    </span>
+                </div>
+                <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--slate-900); margin-bottom: 0.4rem;">Güneş Enerjili Modern Sanayi Kuşağı</h4>
+                        <p style="font-size: 0.82rem; color: var(--slate-600); line-height: 1.5; margin: 0;">
+                            Yıllık milyonlarca tonluk hammadde hareketinin gerçekleştiği dev sanayi kümelenmesinde dijital takip ve sıfır atık koordinasyonu.
+                        </p>
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--slate-100); display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--slate-500);">
+                        <span>Bölge Koordinasyonu</span>
+                        <strong style="color: var(--slate-700);">OSB Denetim Portalı</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kart 2: Tekstil / Halı Geri Dönüşümü -->
+            <div style="background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column;">
+                <div style="position: relative; height: 190px; overflow: hidden; background: #0f172a;">
+                    <img src="~/images/osb/osb-textile.jpg" alt="Gaziantep Tekstil ve Halı Firesi Doğrulama" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+                    <span style="position: absolute; top: 10px; left: 10px; background: rgba(5, 150, 105, 0.9); color: white; font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 4px; backdrop-filter: blur(4px);">
+                        Halı ve Dokuma Firesi
+                    </span>
+                </div>
+                <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--slate-900); margin-bottom: 0.4rem;">Kaynağında Ayrıştırılan Polipropilen İplik</h4>
+                        <p style="font-size: 0.82rem; color: var(--slate-600); line-height: 1.5; margin: 0;">
+                            Dünya makine halısı üretiminin lideri olan Gaziantep'te çözgü, atkı ve kenar fireleri kamera taramasıyla anında partilenir.
+                        </p>
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--slate-100); display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--slate-500);">
+                        <span>Ortalama Saflık</span>
+                        <strong style="color: var(--brand-primary);">%92 - %98 Homopolimer</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kart 3: Polimer Granül Geri Kazanımı -->
+            <div style="background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column;">
+                <div style="position: relative; height: 190px; overflow: hidden; background: #0f172a;">
+                    <img src="~/images/osb/osb-polymer.jpg" alt="Ekstrüzyon ve Geri Dönüşüm Tesisi" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+                    <span style="position: absolute; top: 10px; left: 10px; background: rgba(2, 132, 199, 0.9); color: white; font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 4px; backdrop-filter: blur(4px);">
+                        Geri Kazanım &amp; Granül
+                    </span>
+                </div>
+                <div style="padding: 1.2rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--slate-900); margin-bottom: 0.4rem;">Sertifikalı İkincil Hammadde Üretimi</h4>
+                        <p style="font-size: 0.82rem; color: var(--slate-600); line-height: 1.5; margin: 0;">
+                            Ekstrüder hatlarında eritilip granüle dönüştürülen malzemeler, pasaport üzerindeki teknik değerlerle doğrudan sanayi girdisi olur.
+                        </p>
+                    </div>
+                    <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--slate-100); display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--slate-500);">
+                        <span>Karbon Tasarrufu</span>
+                        <strong style="color: #059669;">~%68 Emisyon Düşüşü</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 2. Problem ve Çözüm Bölümü -->
+<section id="sorun-ve-cozum" class="section">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-tag">Saha Gerçekliği &amp; İhtiyaç</span>
+            <h2 class="section-title">Gaziantep sanayisinde malzeme akışı neden görünmez?</h2>
+            <p class="section-subtitle">
+                Gaziantep Organize Sanayi Bölgesinde her gün tonlarca yüksek kaliteli üretim firesi ortaya çıkıyor. Ancak teknik doğrulama ve veri şeffaflığı olmadığı için bu değerli kaynaklar hak ettiği değeri bulamıyor.
+            </p>
+        </div>
+
+        <div class="cards-grid-3">
+            <div class="feature-box">
+                <span class="feature-index">01 / MEVCUT DURUM</span>
+                <h3 class="feature-title">Belirsiz ve Güvensiz Ticaret</h3>
+                <p class="feature-text">
+                    Fabrikalar üretim firelerini teknik analiz yapmayan aracı hurdacılara teslim ediyor veya düzenli depolama sahalarına gönderiyor. Alıcı tesis malzemenin kimyasal saflığını bilemediği için risk almaktan kaçınıyor.
+                </p>
+            </div>
+
+            <div class="feature-box">
+                <span class="feature-index">02 / YAPAY ZEKA ÇÖZÜMÜ</span>
+                <h3 class="feature-title">Kaynağında Görsel Doğrulama</h3>
+                <p class="feature-text">
+                    Geliştirdiğimiz hafif görüntü işleme modeli, atık sorumlusunun çektiği fotoğraftan polimer türünü, pamuk veya polyester dokusunu ve yabancı madde oranını saniyeler içinde tespit ederek teknik güvence sağlıyor.
+                </p>
+            </div>
+
+            <div class="feature-box">
+                <span class="feature-index">03 / SONUÇ</span>
+                <h3 class="feature-title">Doğrulanmış İkincil Pazar</h3>
+                <p class="feature-text">
+                    Her parti şifreli bir Dijital Malzeme Pasaportuna kavuşuyor. Bir fabrikanın atığı, diğer fabrikanın kalite garantili ve düşük karbonlu girdisi haline gelerek Gaziantep içinde katma değer üretiyor.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3. İş Akışı Mimarisini İnceleme -->
+<section id="isleyis" class="section" style="background-color: var(--slate-50);">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-tag">Uçtan Uca Süreç</span>
+            <h2 class="section-title">Bir parti atıktan doğrulanmış pasaporta giden 4 adım</h2>
+            <p class="section-subtitle">
+                Saha personelinin iş yükünü artırmadan, mobil cihazlar üzerinden saniyeler içinde tamamlanan döngüsel kayıt mimarisi.
+            </p>
+        </div>
+
+        <div class="responsive-grid-4">
+            <div class="feature-box" style="background-color: var(--white);">
+                <span class="feature-index">ADIM 1</span>
+                <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--slate-900);">Saha Görsel Girişi</h4>
+                <p style="font-size: 0.85rem; color: var(--slate-600); line-height: 1.5;">
+                    Vardiya veya atık sorumlusu üretim hattından çıkan parti numunesini mobil arayüzden fotoğraflar ve tahmini parti ağırlığını sisteme girer.
+                </p>
+            </div>
+
+            <div class="feature-box" style="background-color: var(--white);">
+                <span class="feature-index">ADIM 2</span>
+                <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--slate-900);">Yapay Zeka Analizi</h4>
+                <p style="font-size: 0.85rem; color: var(--slate-600); line-height: 1.5;">
+                    Görsel analiz katmanı yüzey dokusunu, lif yapısını ve kirlilik toleransını tarayarak malzemenin kimyasal saflık indeksini hesaplar.
+                </p>
+            </div>
+
+            <div class="feature-box" style="background-color: var(--white);">
+                <span class="feature-index">ADIM 3</span>
+                <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--slate-900);">Pasaport ve QR Üretimi</h4>
+                <p style="font-size: 0.85rem; color: var(--slate-600); line-height: 1.5;">
+                    Partiye AB Yeşil Mutabakatı normlarında taranabilir bir Dijital Malzeme Pasaportu ve gömülü karbon sertifikası atanır.
+                </p>
+            </div>
+
+            <div class="feature-box" style="background-color: var(--white);">
+                <span class="feature-index">ADIM 4</span>
+                <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--slate-900);">Yerel Sanayi Eşleşmesi</h4>
+                <p style="font-size: 0.85rem; color: var(--slate-600); line-height: 1.5;">
+                    Doğrulanan parti, Gaziantep OSB bünyesindeki en uygun geri dönüşüm veya granül tesisiyle doğrudan lojistik eşleşmeye sunulur.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4. Gaziantep OSB Bölgeler Arası Endüstriyel Malzeme Akış Haritası -->
+<section id="akis-haritasi" class="section" style="background: #0f172a; color: white;">
+    <div class="section-container">
+        <div class="section-header" style="text-align: left; margin-bottom: 2rem;">
+            <span class="section-tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border-color: rgba(16, 185, 129, 0.3);">
+                Endüstriyel Simbiyoz Koridoru
+            </span>
+            <h2 class="section-title" style="color: white; margin-bottom: 0.5rem;">Gaziantep OSB 5 Bölge Arası Malzeme Transfer Ağı</h2>
+            <p class="section-subtitle" style="color: #94a3b8;">
+                Tesisler arasındaki atık değil, katma değerli hammadde akışı. Hangi bölgenin çıktısı hangi bölgede ikincil ürüne dönüşüyor?
+            </p>
+        </div>
+
+        <div class="responsive-grid-4" style="margin-bottom: 2rem;">
+            <!-- Akış 1 -->
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.25rem; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #38bdf8; text-transform: uppercase;">1. BÖLGE ➔ 2. BÖLGE</span>
+                    <span style="font-size: 0.75rem; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">Halı Telefi</span>
+                </div>
+                <h4 style="font-size: 0.95rem; font-weight: 700; color: white; margin-bottom: 0.35rem;">PP Dokuma İpliği Fireleri</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.4; margin: 0;">
+                    1. Bölge halı dokuma fabrikalarından çıkan çözgü kenar telefleri, 2. Bölgedeki rejenerasyon tesisinde elyaf kırmaya aktarılır.
+                </p>
+                <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid #334155; font-size: 0.75rem; color: #10b981; font-weight: 700;">
+                    ✓ %94.5 Ortalama Saflık
+                </div>
+            </div>
+
+            <!-- Akış 2 -->
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.25rem; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #34d399; text-transform: uppercase;">4. BÖLGE ➔ 5. BÖLGE</span>
+                    <span style="font-size: 0.75rem; background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">Polimer</span>
+                </div>
+                <h4 style="font-size: 0.95rem; font-weight: 700; color: white; margin-bottom: 0.35rem;">Ambalaj ve Streç Palet Filmleri</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.4; margin: 0;">
+                    4. Bölgedeki gıda ve lojistik depolarından toplanan LDPE ambalajlar, 5. Bölge ekstrüzyon hattında geri dönüştürülür.
+                </p>
+                <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid #334155; font-size: 0.75rem; color: #10b981; font-weight: 700;">
+                    ✓ Sıfır Düzenli Depolama
+                </div>
+            </div>
+
+            <!-- Akış 3 -->
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.25rem; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #fbbf24; text-transform: uppercase;">3. BÖLGE ➔ 1. BÖLGE</span>
+                    <span style="font-size: 0.75rem; background: rgba(251, 191, 36, 0.15); color: #fbbf24; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">Pamuk Telefi</span>
+                </div>
+                <h4 style="font-size: 0.95rem; font-weight: 700; color: white; margin-bottom: 0.35rem;">Pamuk Lifleri &amp; Penye Döküntüsü</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.4; margin: 0;">
+                    3. Bölge iplik büküm tesislerinden çıkan penye ve tarak telefleri, 1. Bölgedeki keçe ve izolasyon üretimine ham madde olur.
+                </p>
+                <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid #334155; font-size: 0.75rem; color: #10b981; font-weight: 700;">
+                    ✓ %72 Su Tasarrufu
+                </div>
+            </div>
+
+            <!-- Akış 4 -->
+            <div style="background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 1.25rem; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <span style="font-size: 0.7rem; font-weight: 800; color: #a78bfa; text-transform: uppercase;">5. BÖLGE ➔ TÜM OSB</span>
+                    <span style="font-size: 0.75rem; background: rgba(167, 139, 250, 0.15); color: #a78bfa; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">Döngü Sonu</span>
+                </div>
+                <h4 style="font-size: 0.95rem; font-weight: 700; color: white; margin-bottom: 0.35rem;">Sertifikalı Geri Dönüşüm Granülü</h4>
+                <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.4; margin: 0;">
+                    Pasaportlu firelerden üretilen saf granüller, enjeksiyon ve plastik kasa üreticilerine doğrudan hammadde olarak geri döner.
+                </p>
+                <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid #334155; font-size: 0.75rem; color: #10b981; font-weight: 700;">
+                    ✓ Tam Kapalı Döngü
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Kümülatif ESG Karbon & Finansal Tasarruf Göstergesi -->
+        <div style="background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); border: 1px solid #059669; border-radius: 12px; padding: 1.75rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+            <div>
+                <div style="font-size: 0.75rem; font-weight: 800; color: #34d399; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.35rem;">
+                    BÖLGESEL ESG VE SKDM HESAPLAMA MOTORU
+                </div>
+                <h3 style="font-size: 1.4rem; color: white; font-weight: 800; margin: 0 0 0.4rem 0;">Gaziantep OSB Kümülatif Çevresel ve Finansal Kazanım</h3>
+                <p style="font-size: 0.85rem; color: #a7f3d0; margin: 0; max-width: 600px;">
+                    Sistemde doğrulanarak ticarete açılan ikincil partilerin birincil fosil hammadde yerine kullanılmasıyla sağlanan net etki.
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                <div style="text-align: center; background: rgba(255,255,255,0.08); padding: 0.85rem 1.25rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12);">
+                    <div style="font-size: 1.6rem; font-weight: 900; color: #34d399;">18.450 t</div>
+                    <div style="font-size: 0.72rem; color: #cbd5e1; text-transform: uppercase; font-weight: 600;">Kurtarılan Malzeme</div>
+                </div>
+                <div style="text-align: center; background: rgba(255,255,255,0.08); padding: 0.85rem 1.25rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12);">
+                    <div style="font-size: 1.6rem; font-weight: 900; color: #38bdf8;">38.745 t</div>
+                    <div style="font-size: 0.72rem; color: #cbd5e1; text-transform: uppercase; font-weight: 600;">Önlenen CO₂ Emisyonu</div>
+                </div>
+                <div style="text-align: center; background: rgba(255,255,255,0.08); padding: 0.85rem 1.25rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12);">
+                    <div style="font-size: 1.6rem; font-weight: 900; color: #fbbf24;">₺42.8M</div>
+                    <div style="font-size: 0.72rem; color: #cbd5e1; text-transform: uppercase; font-weight: 600;">Yerel Katma Değer</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 5. Ekosistemdeki 3 Rol -->
+<section id="roller" class="section">
+    <div class="section-container">
+        <div class="section-header">
+            <span class="section-tag">Kurumsal Kullanıcı Mimarisi</span>
+            <h2 class="section-title">Farklı aktörler için optimize edilmiş kontrol panelleri</h2>
+            <p class="section-subtitle">
+                Tek tip bir arayüz yerine sahadaki her paydaşın yetki alanına ve teknik ihtiyacına göre özelleştirilmiş kurumsal modüller.
+            </p>
+        </div>
+
+        <div class="cards-grid-3">
+            <div class="feature-box">
+                <span style="font-size: 0.75rem; font-weight: 800; color: var(--brand-primary); text-transform: uppercase;">ROL 1 · SAHA &amp; ÜRETİCİ</span>
+                <h3 class="feature-title" style="margin-top: 0.5rem;">Üretici Fabrika Yetkilisi</h3>
+                <p class="feature-text">
+                    Mobilde tek elle kullanılabilen arayüz üzerinden parti fotoğraflama, anında AI saflık raporu alma, parti etiketi basma ve tesisin önlediği karbon emisyonunu takip etme yetkisi.
+                </p>
+            </div>
+
+            <div class="feature-box">
+                <span style="font-size: 0.75rem; font-weight: 800; color: var(--brand-steel); text-transform: uppercase;">ROL 2 · TEDARİK &amp; GERİ KAZANIM</span>
+                <h3 class="feature-title" style="margin-top: 0.5rem;">Geri Dönüşümcü &amp; Alıcı Sanayici</h3>
+                <p class="feature-text">
+                    Gaziantep OSB genelinde doğrulanmış hammadde partilerini polimer türü, saflık yüzdesi ve mesafe bazında filtreleme, kalite garantili teklif verme ve tedarik rezervasyonu.
+                </p>
+            </div>
+
+            <div class="feature-box">
+                <span style="font-size: 0.75rem; font-weight: 800; color: var(--slate-900); text-transform: uppercase;">ROL 3 · DENETİM &amp; YÖNETİM</span>
+                <h3 class="feature-title" style="margin-top: 0.5rem;">OSB Yönetimi &amp; Karbon Denetçisi</h3>
+                <p class="feature-text">
+                    Şehir ve bölge genelinde depolama sahasından kurtarılan atık hacmini izleme, SKDM uyumluluk raporlarını denetleme ve sisteme katılacak sanayi kuruluşlarını resmi olarak yetkilendirme.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 5. Uluslararası Standartlar ve Mevzuat Çubuğu -->
+<div id="mevzuat" class="standards-bar">
+    <div class="standards-grid">
+        <div class="standard-item">
+            <h4>AB ESPR Direktifi</h4>
+            <p>Ecodesign for Sustainable Products Regulation kapsamında zorunlu hale gelen Dijital Ürün Pasaportu standartlarıyla tam uyumlu veri şeması.</p>
+        </div>
+        <div class="standard-item">
+            <h4>Sınırda Karbon Düzenleme Mekanizması</h4>
+            <p>Gaziantep ihracatçı sanayicilerinin Avrupa Birliği pazarına sunacağı ürünlerde ikincil hammadde payını resmi olarak kanıtlama altyapısı.</p>
+        </div>
+        <div class="standard-item">
+            <h4>ISO 14067 Emisyon Metodu</h4>
+            <p>Birincil polimer ve saf pamuk üretimi yerine ikame edilen atıkların partiye özel net karbondioksit eşdeğeri emisyon tasarruf hesabı.</p>
+        </div>
+        <div class="standard-item">
+            <h4>Sıfır Atık Belgelendirme</h4>
+            <p>Çevre, Şehircilik ve İklim Değişikliği Bakanlığı Sıfır Atık Yönetmeliği doğrultusunda denetlenebilir malzeme çıkış zinciri.</p>
+        </div>
+    </div>
+</div>

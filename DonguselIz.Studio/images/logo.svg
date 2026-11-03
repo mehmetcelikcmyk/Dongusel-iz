@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <!-- Zemin: Mat Koyu Kurumsal Slate -->
+  <rect width="120" height="120" rx="16" fill="#0f172a"/>
+  
+  <!-- Döngüsel İz: Geometrik, Keskin Hatlı Endüstriyel Döngü Çizgileri -->
+  <!-- Dış Köşeli Yol - Mat Zümrüt Yeşili -->
+  <path d="M 28 40 L 28 26 L 82 26 L 94 38 L 94 62 L 80 62" 
+        fill="none" 
+        stroke="#0f766e" 
+        stroke-width="7" 
+        stroke-linecap="square" 
+        stroke-linejoin="miter"/>
+
+  <!-- İç Köşeli Yol - Endüstriyel Çelik / Açık Slate -->
+  <path d="M 92 80 L 92 94 L 38 94 L 26 82 L 26 58 L 40 58" 
+        fill="none" 
+        stroke="#94a3b8" 
+        stroke-width="7" 
+        stroke-linecap="square" 
+        stroke-linejoin="miter"/>
+
+  <!-- Merkez Keskin Geometrik İz Noktası (Veri & Malzeme Kimliği) -->
+  <rect x="52" y="52" width="16" height="16" fill="#14b8a6"/>
+</svg>

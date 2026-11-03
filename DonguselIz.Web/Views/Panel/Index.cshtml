@@ -1,0 +1,71 @@
+@model DonguselIz.Web.Models.ViewModels.PanelViewModel
+@using DonguselIz.Web.Services
+@{
+    ViewData["Title"] = "Panelim";
+}
+
+<div class="page-wrap">
+    <div class="page-head">
+        <div>
+            <div class="page-eyebrow">Panelim</div>
+            <h2 class="page-title">@Model.Greeting</h2>
+        </div>
+    </div>
+
+    @if (ViewData["RevisionCount"] is int rCount && rCount > 0)
+    {
+        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 1.1rem 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <div style="font-size: 0.85rem; font-weight: 800; color: #b45309; text-transform: uppercase; letter-spacing: 0.04em;">
+                    ⚠️ OSB Denetçisi Revizyon Talebi Bulunuyor
+                </div>
+                <div style="font-size: 0.88rem; color: #78350f; margin-top: 0.25rem;">
+                    Bildirdiğiniz <strong>@rCount adet</strong> malzeme partisi için denetçi tarafından düzeltme istendi.
+                </div>
+            </div>
+            <a asp-controller="Batch" asp-action="Index" class="btn btn-primary btn-sm" style="background: #b45309; border-color: #b45309;">
+                Partileri İncele ve Düzenle
+            </a>
+        </div>
+    }
+
+    <div class="stat-grid">
+        @foreach (var s in Model.Stats)
+        {
+            <div class="stat-card">
+                <div class="stat-label">@s.Label</div>
+                <div class="stat-value">@s.Value</div>
+                <div class="stat-hint">@s.Hint</div>
+            </div>
+        }
+    </div>
+
+    <div class="panel-card">
+        <h3>@Model.RecentTitle</h3>
+        @if (!Model.RecentBatches.Any())
+        {
+            <div class="empty-state">Henüz gösterilecek parti bulunmuyor.</div>
+        }
+        else
+        {
+            <table class="data-table">
+                <thead>
+                    <tr><th>Lot</th><th>Tesis</th><th>Malzeme</th><th>Miktar</th><th>Durum</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in Model.RecentBatches)
+                    {
+                        <tr>
+                            <td><strong>@b.LotNo</strong></td>
+                            <td>@b.Company?.Name</td>
+                            <td>@b.MaterialType</td>
+                            <td>@b.WeightKg.ToString("N0") kg</td>
+                            <td><span class="badge @BatchStatusDisplay.CssClass(b.Status)">@BatchStatusDisplay.Label(b.Status)</span></td>
+                            <td><a asp-controller="Batch" asp-action="Details" asp-route-id="@b.Id">Detay</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>

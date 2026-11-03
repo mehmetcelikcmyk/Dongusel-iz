@@ -1,0 +1,527 @@
+@model DonguselIz.Web.Models.ViewModels.CompanyManagementViewModel
+@{
+    ViewData["Title"] = "OSB Tesis Yönetim Masası";
+    var totalCapacity = Model.Companies.Sum(c => c.MonthlyOutputCapacityTons);
+    var pendingCount = Model.PendingApplications.Count();
+    var totalCompanies = Model.Companies.Count();
+}
+
+<div style="max-width: 1240px; margin: 1.5rem auto; padding: 0 1rem;">
+    <!-- Üst Başlık -->
+    <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem;">
+        <div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.05em;">Gaziantep OSB Bölge Müdürlüğü</div>
+            <h2 style="font-size: 1.45rem; color: var(--slate-900); margin-top: 0.2rem; font-weight: 800;">Tesis ve Personel Yönetim Masası</h2>
+            <p style="font-size: 0.85rem; color: var(--slate-500); margin-top: 0.2rem;">Organize sanayi bölgesindeki tesislerin kayıtlarını, malzeme çıktılarını ve yetkili personellerini denetleyin.</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1.5rem; font-weight: 600;">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.85rem 1.1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1.5rem; font-weight: 600;">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- OSB Yönetim Metrik Kartları -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+        <div class="card" style="padding: 1.1rem; border: 1px solid var(--border); border-radius: 10px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Kayıtlı Sanayi Tesisi</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--slate-900); margin-top: 0.25rem;">@totalCompanies</div>
+            <div style="font-size: 0.75rem; color: var(--brand-primary); font-weight: 600; margin-top: 0.2rem;">Aktif üretim ve geri dönüşüm</div>
+        </div>
+
+        <div class="card" style="padding: 1.1rem; border: 1px solid var(--border); border-radius: 10px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Bekleyen Başvuru Talebi</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: @(pendingCount > 0 ? "#b45309" : "var(--slate-900)"); margin-top: 0.25rem;">@pendingCount</div>
+            <div style="font-size: 0.75rem; color: @(pendingCount > 0 ? "#b45309" : "var(--slate-500)"); font-weight: 600; margin-top: 0.2rem;">
+                @(pendingCount > 0 ? "İnceleme ve onay bekleyen işletmeler" : "Bekleyen yeni talep bulunmuyor")
+            </div>
+        </div>
+
+        <div class="card" style="padding: 1.1rem; border: 1px solid var(--border); border-radius: 10px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Kayıtlı Aylık Çıktı Kapasitesi</div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--slate-900); margin-top: 0.25rem;">@totalCapacity.ToString("N0") Ton</div>
+            <div style="font-size: 0.75rem; color: var(--slate-500); font-weight: 600; margin-top: 0.2rem;">Gaziantep OSB sanayi envanteri</div>
+        </div>
+    </div>
+
+    <!-- Sekme Başlıkları -->
+    <div style="display: flex; gap: 0.5rem; border-bottom: 2px solid var(--slate-200); margin-bottom: 1.5rem;">
+        <button type="button" class="admin-tab-btn active" id="tabBtnCompanies" onclick="switchAdminTab('companies')">
+            Kayıtlı Sanayi Tesisleri
+            <span style="background: var(--slate-100); padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.72rem; margin-left: 0.4rem;">@totalCompanies</span>
+        </button>
+        <button type="button" class="admin-tab-btn" id="tabBtnApplications" onclick="switchAdminTab('applications')">
+            Bekleyen Üyelik Başvuruları
+            @if (pendingCount > 0)
+            {
+                <span style="background: #fef3c7; color: #b45309; padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.72rem; margin-left: 0.4rem; font-weight: 800;">@pendingCount</span>
+            }
+        </button>
+        <button type="button" class="admin-tab-btn" id="tabBtnCreate" onclick="switchAdminTab('create')">
+            Yeni Tesis Tanımla
+        </button>
+    </div>
+
+    <!-- 1. SEKME: Kayıtlı Tesisler Listesi ve Arama / Filtreleme Çubuğu -->
+    <div id="tabContentCompanies" class="admin-tab-pane">
+        <!-- Canlı Tesis Filtreleme Konsolu -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+            <div style="display: grid; grid-template-columns: 2fr 1.2fr 1.2fr auto; gap: 0.85rem; align-items: center;">
+                <div style="position: relative;">
+                    <input type="text" id="companySearchInput" class="form-control" placeholder="Firma adı veya Vergi Numarası ile ara..." oninput="filterCompanies()" style="padding-left: 2.2rem; font-size: 0.85rem;" />
+                    <svg style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--slate-400);" width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+
+                <div>
+                    <select id="companyRegionFilter" class="form-control" onchange="filterCompanies()" style="font-size: 0.85rem;">
+                        <option value="">Tüm OSB Bölgeleri</option>
+                        <option value="1. Bölge">Gaziantep OSB 1. Bölge</option>
+                        <option value="2. Bölge">Gaziantep OSB 2. Bölge</option>
+                        <option value="3. Bölge">Gaziantep OSB 3. Bölge</option>
+                        <option value="4. Bölge">Gaziantep OSB 4. Bölge</option>
+                        <option value="5. Bölge">Gaziantep OSB 5. Bölge</option>
+                        <option value="Küsget">Küsget Sanayi Sitesi</option>
+                    </select>
+                </div>
+
+                <div>
+                    <select id="companyRoleFilter" class="form-control" onchange="filterCompanies()" style="font-size: 0.85rem;">
+                        <option value="">Tüm Tesis Rolleri</option>
+                        <option value="WasteGenerator">Üretici Tesis</option>
+                        <option value="RecyclerBuyer">Geri Dönüşümcü</option>
+                        <option value="OsbAuditor">OSB Denetim</option>
+                    </select>
+                </div>
+
+                <div>
+                    <button type="button" onclick="resetCompanyFilters()" class="btn btn-outline btn-sm" style="white-space: nowrap; font-size: 0.8rem; padding: 0.5rem 0.85rem;">
+                        Sıfırla
+                    </button>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--slate-200); font-size: 0.78rem; color: var(--slate-500);">
+                <div>
+                    Toplam <strong id="totalCompCount" style="color: var(--slate-900);">@totalCompanies</strong> tesisten <strong id="visibleCompCount" style="color: var(--brand-primary);">@totalCompanies</strong> tanesi listeleniyor
+                </div>
+                <button type="button" onclick="switchAdminTab('create')" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+                    Yeni Tesis Ekle
+                </button>
+            </div>
+        </div>
+
+        <!-- Sonuç Bulunamadı Kutusu -->
+        <div id="noCompanyResultsNotice" class="card" style="display: none; padding: 2.5rem; text-align: center; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1.5rem;">
+            <div style="font-size: 1rem; font-weight: 800; color: var(--slate-800);">Arama Kriterlerinize Uygun Tesis Bulunamadı</div>
+            <p style="font-size: 0.82rem; color: var(--slate-500); margin-top: 0.35rem;">Firma adını veya vergi numarasını kontrol edebilir ya da filtreleri temizleyebilirsiniz.</p>
+            <button type="button" onclick="resetCompanyFilters()" class="btn btn-outline btn-sm" style="margin-top: 0.85rem;">
+                Filtreleri Temizle
+            </button>
+        </div>
+
+        <!-- Tesis Kartları Grid -->
+        <div id="companiesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1rem;">
+            @foreach (var comp in Model.Companies)
+            {
+                <div class="card company-card-item"
+                     data-name="@(comp.Name?.ToLower() ?? "")"
+                     data-tax="@(comp.TaxNumber ?? "")"
+                     data-region="@(comp.OsbRegion?.ToLower() ?? "")"
+                     data-role="@(comp.PrimaryRole.ToString())"
+                     style="background: #ffffff; border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
+                            <div>
+                                <h4 style="font-size: 1rem; font-weight: 800; color: var(--slate-900); margin: 0; line-height: 1.25;">@comp.Name</h4>
+                                <div style="font-size: 0.75rem; color: var(--slate-500); margin-top: 0.25rem;">
+                                    @comp.OsbRegion · Vergi No @comp.TaxNumber
+                                </div>
+                            </div>
+                            <span style="font-size: 0.7rem; font-weight: 700; background: var(--slate-100); color: var(--slate-700); padding: 0.25rem 0.55rem; border-radius: 6px; white-space: nowrap;">
+                                @(comp.PrimaryRole switch {
+                                    DonguselIz.Web.Models.Enums.UserRole.WasteGenerator => "Üretici Tesis",
+                                    DonguselIz.Web.Models.Enums.UserRole.RecyclerBuyer => "Geri Dönüşümcü",
+                                    DonguselIz.Web.Models.Enums.UserRole.OsbAuditor => "OSB Denetim",
+                                    _ => "Kullanıcı"
+                                })
+                            </span>
+                        </div>
+
+                        <div style="margin-top: 0.85rem; padding: 0.65rem 0.75rem; background-color: var(--slate-50); border-radius: 8px; border: 1px solid var(--slate-100);">
+                            <div style="font-size: 0.72rem; color: var(--slate-500); text-transform: uppercase; font-weight: 700;">Çıktı ve Kapasite Bilgisi</div>
+                            <div style="font-size: 0.82rem; font-weight: 700; color: var(--brand-primary); margin-top: 0.15rem;">
+                                @comp.OutputMaterialTypes
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--slate-600); margin-top: 0.15rem;">
+                                Aylık Bildirilen Hacim @comp.MonthlyOutputCapacityTons Ton
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem; pt: 0.75rem; border-top: 1px solid var(--slate-100); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 0.75rem; color: var(--slate-600);">
+                            Kayıtlı Personel <strong>@comp.Employees.Count Kişi</strong>
+                        </div>
+                        <a asp-action="EditCompany" asp-route-id="@comp.Id" class="btn btn-outline btn-sm" style="font-size: 0.75rem;">
+                            Tesis ve Ekibi Düzenle
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- 2. SEKME: Bekleyen Başvuru Talepleri -->
+    <div id="tabContentApplications" class="admin-tab-pane" style="display: none;">
+        @if (!Model.PendingApplications.Any())
+        {
+            <div class="card" style="padding: 2.5rem; text-align: center; background: #ffffff; border: 1px solid var(--border); border-radius: 10px;">
+                <div style="font-size: 1rem; font-weight: 700; color: var(--slate-800);">Bekleyen Yeni Katılım Başvurusu Yok</div>
+                <p style="font-size: 0.82rem; color: var(--slate-500); margin-top: 0.35rem;">Sanayi kuruluşlarından gelen tüm ön talepler onaylanmış veya incelenmiştir.</p>
+            </div>
+        }
+        else
+        {
+            <!-- Bekleyen Başvurular Canlı Arama Konsolu -->
+            <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                <div style="display: grid; grid-template-columns: 2fr 1.2fr 1.2fr auto; gap: 0.85rem; align-items: center;">
+                    <div style="position: relative;">
+                        <input type="text" id="appSearchInput" class="form-control" placeholder="Firma adı, yetkili veya vergi no ile ara..." oninput="filterApplications()" style="padding-left: 2.2rem; font-size: 0.85rem;" />
+                        <svg style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--slate-400);" width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+
+                    <div>
+                        <select id="appRegionFilter" class="form-control" onchange="filterApplications()" style="font-size: 0.85rem;">
+                            <option value="">Tüm OSB Bölgeleri</option>
+                            <option value="1. bölge">Gaziantep OSB 1. Bölge</option>
+                            <option value="2. bölge">Gaziantep OSB 2. Bölge</option>
+                            <option value="3. bölge">Gaziantep OSB 3. Bölge</option>
+                            <option value="4. bölge">Gaziantep OSB 4. Bölge</option>
+                            <option value="5. bölge">Gaziantep OSB 5. Bölge</option>
+                            <option value="küsget">Küsget Sanayi Sitesi</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <select id="appRoleFilter" class="form-control" onchange="filterApplications()" style="font-size: 0.85rem;">
+                            <option value="">Tüm Talep Rolleri</option>
+                            <option value="WasteGenerator">Üretici Tesis</option>
+                            <option value="RecyclerBuyer">Geri Dönüşümcü</option>
+                            <option value="OsbAuditor">OSB Denetim</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <button type="button" onclick="resetAppFilters()" class="btn btn-outline btn-sm" style="white-space: nowrap; font-size: 0.8rem; padding: 0.5rem 0.85rem;">
+                            Sıfırla
+                        </button>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--slate-200); font-size: 0.78rem; color: var(--slate-500);">
+                    <div>
+                        Toplam <strong id="totalAppCount" style="color: var(--slate-900);">@Model.PendingApplications.Count()</strong> başvurudan <strong id="visibleAppCount" style="color: var(--brand-primary);">@Model.PendingApplications.Count()</strong> tanesi listeleniyor
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sonuç Bulunamadı Kutusu -->
+            <div id="noAppResultsNotice" class="card" style="display: none; padding: 2.5rem; text-align: center; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1.5rem;">
+                <div style="font-size: 1rem; font-weight: 800; color: var(--slate-800);">Arama Kriterlerinize Uygun Başvuru Bulunamadı</div>
+                <p style="font-size: 0.82rem; color: var(--slate-500); margin-top: 0.35rem;">Firma adını veya vergi numarasını kontrol edebilir ya da filtreleri sıfırlayabilirsiniz.</p>
+                <button type="button" onclick="resetAppFilters()" class="btn btn-outline btn-sm" style="margin-top: 0.85rem;">
+                    Filtreleri Temizle
+                </button>
+            </div>
+
+            <div id="applicationsContainer" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                @foreach (var app in Model.PendingApplications)
+                {
+                    <div class="card app-card-item"
+                         data-name="@(app.CompanyName?.ToLower() ?? "")"
+                         data-tax="@(app.TaxNumber ?? "")"
+                         data-contact="@(app.ContactFullName?.ToLower() ?? "")"
+                         data-region="@(app.OsbRegion?.ToLower() ?? "")"
+                         data-role="@(app.RequestedRole.ToString())"
+                         style="background: #ffffff; border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                        <div style="max-width: 650px;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                <h4 style="font-size: 1.05rem; font-weight: 800; color: var(--slate-900); margin: 0;">@app.CompanyName</h4>
+                                <span style="font-size: 0.7rem; font-weight: 700; background: #fef3c7; color: #b45309; padding: 0.2rem 0.5rem; border-radius: 4px;">
+                                    İnceleme Bekliyor
+                                </span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--slate-600); margin-top: 0.35rem;">
+                                Vergi No @app.TaxNumber · Bölge @app.OsbRegion · Yetkili Temsilci @app.ContactFullName · E-Posta @app.Email
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--brand-primary); font-weight: 600; margin-top: 0.35rem; background: var(--slate-50); padding: 0.4rem 0.65rem; border-radius: 6px;">
+                                Bildirilen Çıktı veya Atık Tanımı: @app.WasteOrMaterialDescription
+                            </div>
+                        </div>
+
+                        <form asp-action="ApproveApplication" method="post" style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem;">
+                            <input type="hidden" name="applicationId" value="@app.Id" />
+                            <button type="submit" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 0.95rem;">
+                                <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                                Başvuruyu Onayla ve Hesabı Aç
+                            </button>
+                            <span style="font-size: 0.7rem; color: var(--slate-500);">Kullanıcı kendi belirlediği şifre ile giriş yapacak</span>
+                        </form>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- 3. SEKME: Yeni Tesis Tanımlama Formu -->
+    <div id="tabContentCreate" class="admin-tab-pane" style="display: none;">
+        <div class="card" style="max-width: 800px; margin: 0 auto; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+            <div style="border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.15rem; color: var(--slate-900); font-weight: 800;">Yeni Sanayi Tesisi Kaydı</h3>
+                <p style="font-size: 0.82rem; color: var(--slate-500); margin-top: 0.2rem;">Firma kurumsal bilgilerini, aylık malzeme hacmini ve ilk yetkili yöneticisini tanımlayınız.</p>
+            </div>
+
+            <form asp-action="CreateCompany" method="post">
+                <div class="form-group" style="margin-bottom: 1.1rem;">
+                    <label class="form-label" style="font-weight: 700; font-size: 0.82rem;">Firma Resmi Ünvanı</label>
+                    <input asp-for="NewCompany.Name" class="form-control" placeholder="Örnek: Sanko Tekstil İşletmeleri San. ve Tic. A.Ş." required />
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.1rem;">
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight: 700; font-size: 0.82rem;">10 Haneli Vergi Kimlik Numarası</label>
+                        <input asp-for="NewCompany.TaxNumber" class="form-control" placeholder="10 haneli VKN" maxlength="10" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight: 700; font-size: 0.82rem;">Gaziantep OSB Bölgesi</label>
+                        <select asp-for="NewCompany.OsbRegion" class="form-control">
+                            <option value="Gaziantep OSB 1. Bölge">Gaziantep OSB 1. Bölge</option>
+                            <option value="Gaziantep OSB 2. Bölge">Gaziantep OSB 2. Bölge</option>
+                            <option value="Gaziantep OSB 3. Bölge">Gaziantep OSB 3. Bölge</option>
+                            <option value="Gaziantep OSB 4. Bölge">Gaziantep OSB 4. Bölge</option>
+                            <option value="Gaziantep OSB 5. Bölge">Gaziantep OSB 5. Bölge</option>
+                            <option value="Küsget Sanayi Sitesi">Küsget Sanayi Sitesi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1rem; margin-bottom: 1.1rem;">
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight: 700; font-size: 0.82rem;">Tesis Çıktı ve Fire Türleri</label>
+                        <input asp-for="NewCompany.OutputMaterialTypes" class="form-control" placeholder="Örnek: PP Dokuma Firesi, Telef İplik, Streç Film" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight: 700; font-size: 0.82rem;">Aylık Ortalama Çıktı Ton</label>
+                        <input asp-for="NewCompany.MonthlyOutputCapacityTons" type="number" step="0.1" class="form-control" value="80" required />
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label class="form-label" style="font-weight: 700; font-size: 0.82rem;">Firma ve Sistem Rolü</label>
+                    <select asp-for="NewCompany.PrimaryRole" class="form-control">
+                        <option value="@DonguselIz.Web.Models.Enums.UserRole.WasteGenerator">Üretici Tesis (Fire ve Atık Çıkışı)</option>
+                        <option value="@DonguselIz.Web.Models.Enums.UserRole.RecyclerBuyer">Geri Dönüşümcü (Hammadde Satın Alma)</option>
+                        <option value="@DonguselIz.Web.Models.Enums.UserRole.OsbAuditor">OSB ve Karbon Denetçisi</option>
+                    </select>
+                </div>
+
+                <div style="background-color: var(--slate-50); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.78rem; font-weight: 800; color: var(--brand-primary); text-transform: uppercase; margin-bottom: 0.75rem;">İlk Tesis Yetkili Personeli</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 0.75rem;">
+                        <div>
+                            <label class="form-label" style="font-size: 0.75rem; color: var(--slate-600);">Yetkili Ad Soyad</label>
+                            <input asp-for="InitialAdminFullName" class="form-control" placeholder="Ad Soyad" required />
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: 0.75rem; color: var(--slate-600);">Kurumsal E-Posta</label>
+                            <input asp-for="InitialAdminEmail" class="form-control" placeholder="kurumsal@fabrika.com.tr" required />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size: 0.75rem; color: var(--slate-600);">İlk Giriş Şifresi</label>
+                        <div class="password-field-wrapper">
+                            <input asp-for="InitialPassword" type="password" class="form-control" placeholder="İlk Giriş Şifresi" required />
+                            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" title="Şifreyi Göster veya Gizle" aria-label="Şifreyi Göster">
+                                <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg class="eye-closed" style="display: none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">
+                    Tesisi ve Personelini Sisteme Kaydet
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-tab-btn {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        padding: 0.75rem 1rem;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--slate-500);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.2s ease;
+        margin-bottom: -2px;
+    }
+    .admin-tab-btn:hover {
+        color: var(--slate-800);
+    }
+    .admin-tab-btn.active {
+        color: var(--brand-primary);
+        border-bottom-color: var(--brand-primary);
+    }
+</style>
+
+<script>
+    function switchAdminTab(tabName) {
+        var panes = document.querySelectorAll('.admin-tab-pane');
+        panes.forEach(function(pane) {
+            pane.style.display = 'none';
+        });
+
+        var btns = document.querySelectorAll('.admin-tab-btn');
+        btns.forEach(function(btn) {
+            btn.classList.remove('active');
+        });
+
+        if (tabName === 'companies') {
+            document.getElementById('tabContentCompanies').style.display = 'block';
+            document.getElementById('tabBtnCompanies').classList.add('active');
+        } else if (tabName === 'applications') {
+            document.getElementById('tabContentApplications').style.display = 'block';
+            document.getElementById('tabBtnApplications').classList.add('active');
+        } else if (tabName === 'create') {
+            document.getElementById('tabContentCreate').style.display = 'block';
+            document.getElementById('tabBtnCreate').classList.add('active');
+        }
+    }
+
+    function filterCompanies() {
+        var query = document.getElementById('companySearchInput').value.toLowerCase().trim();
+        var regionFilter = document.getElementById('companyRegionFilter').value.toLowerCase().trim();
+        var roleFilter = document.getElementById('companyRoleFilter').value.trim();
+
+        var cards = document.querySelectorAll('.company-card-item');
+        var visibleCount = 0;
+
+        cards.forEach(function(card) {
+            var name = card.getAttribute('data-name') || '';
+            var tax = card.getAttribute('data-tax') || '';
+            var region = card.getAttribute('data-region') || '';
+            var role = card.getAttribute('data-role') || '';
+
+            var matchesQuery = !query || name.includes(query) || tax.includes(query);
+            var matchesRegion = !regionFilter || region.includes(regionFilter);
+            var matchesRole = !roleFilter || role === roleFilter;
+
+            if (matchesQuery && matchesRegion && matchesRole) {
+                card.style.display = 'flex';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        var countElem = document.getElementById('visibleCompCount');
+        if (countElem) {
+            countElem.innerText = visibleCount;
+        }
+
+        var noticeElem = document.getElementById('noCompanyResultsNotice');
+        if (noticeElem) {
+            noticeElem.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+    }
+
+    function resetCompanyFilters() {
+        var qInput = document.getElementById('companySearchInput');
+        var rFilter = document.getElementById('companyRegionFilter');
+        var roleFilter = document.getElementById('companyRoleFilter');
+
+        if (qInput) qInput.value = '';
+        if (rFilter) rFilter.value = '';
+        if (roleFilter) roleFilter.value = '';
+
+        filterCompanies();
+    }
+
+    function filterApplications() {
+        var query = document.getElementById('appSearchInput').value.toLowerCase().trim();
+        var regionFilter = document.getElementById('appRegionFilter').value.toLowerCase().trim();
+        var roleFilter = document.getElementById('appRoleFilter').value.trim();
+
+        var cards = document.querySelectorAll('.app-card-item');
+        var visibleCount = 0;
+
+        cards.forEach(function(card) {
+            var name = card.getAttribute('data-name') || '';
+            var tax = card.getAttribute('data-tax') || '';
+            var contact = card.getAttribute('data-contact') || '';
+            var region = card.getAttribute('data-region') || '';
+            var role = card.getAttribute('data-role') || '';
+
+            var matchesQuery = !query || name.includes(query) || tax.includes(query) || contact.includes(query);
+            var matchesRegion = !regionFilter || region.includes(regionFilter);
+            var matchesRole = !roleFilter || role === roleFilter;
+
+            if (matchesQuery && matchesRegion && matchesRole) {
+                card.style.display = 'flex';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        var countElem = document.getElementById('visibleAppCount');
+        if (countElem) {
+            countElem.innerText = visibleCount;
+        }
+
+        var noticeElem = document.getElementById('noAppResultsNotice');
+        if (noticeElem) {
+            noticeElem.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+    }
+
+    function resetAppFilters() {
+        var qInput = document.getElementById('appSearchInput');
+        var rFilter = document.getElementById('appRegionFilter');
+        var roleFilter = document.getElementById('appRoleFilter');
+
+        if (qInput) qInput.value = '';
+        if (rFilter) rFilter.value = '';
+        if (roleFilter) roleFilter.value = '';
+
+        filterApplications();
+    }
+</script>

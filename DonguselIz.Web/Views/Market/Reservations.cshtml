@@ -1,0 +1,251 @@
+@model List<DonguselIz.Web.Models.Domain.WasteBatch>
+@using DonguselIz.Web.Services
+@using DonguselIz.Web.Models.Enums
+@{
+    ViewData["Title"] = "Rezervasyonlarım & İrsaliye Kabulü";
+    var totalWeightTons = Model.Sum(b => b.WeightKg) / 1000.0;
+    var totalCarbonSaved = Model.Sum(b => b.CarbonSavedTons);
+}
+
+<div class="page-wrap">
+    <div class="page-head">
+        <div>
+            <div class="page-eyebrow">İkincil Hammadde Tedarik Zinciri</div>
+            <h2 class="page-title">Rezervasyonlarım &amp; Malzeme Kabulü</h2>
+            <p class="page-sub">Firmanız adına rezerve edilen partilerin saha sevk durumu, kantar kabulü ve döngüsel kapatma işlemleri.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-primary btn-sm">Yeni Hammadde Rezerve Et</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null) { <div class="flash flash-ok">@TempData["SuccessMessage"]</div> }
+    @if (TempData["ErrorMessage"] != null) { <div class="flash flash-err">@TempData["ErrorMessage"]</div> }
+
+    <!-- Özet İstatistik Kartları -->
+    <div class="stat-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 1.5rem;">
+        <div class="stat-card">
+            <div class="stat-label">Toplam Rezerve Parti</div>
+            <div class="stat-value">@Model.Count</div>
+            <div class="stat-hint">Tedarik akışınızdaki partiler</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Kazanılan İkincil Hammadde</div>
+            <div class="stat-value">@totalWeightTons.ToString("0.0") ton</div>
+            <div class="stat-hint">Orijinal granül ikamesi</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Önlenen Karbon Salımı</div>
+            <div class="stat-value" style="color: #059669;">@totalCarbonSaved.ToString("0.00") tCO2</div>
+            <div class="stat-hint">ESG sürdürülebilirlik kazancı</div>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div style="display: flex; gap: 0.75rem; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap;">
+            <div style="display: flex; gap: 0.5rem; flex: 1; min-width: 260px;">
+                <input type="text" id="reservationSearch" class="form-control" placeholder="Lot No, üretici fabrika veya malzeme cinsi ara..." oninput="filterReservations()" style="max-width: 380px;" />
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <select id="statusFilter" class="form-control" onchange="filterReservations()" style="width: auto;">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="matched">Yolda veya Sevkiyat Aşamasında</option>
+                    <option value="recycled">Teslim Alındı ve Tamamlandı</option>
+                </select>
+            </div>
+        </div>
+    }
+
+    <div class="panel-card" style="padding: 0; overflow: hidden;">
+        @if (!Model.Any())
+        {
+            <div class="empty-state" style="padding: 3rem 1rem;">
+                Henüz rezerve ettiğiniz bir hammadde partisi bulunmuyor.
+                <div style="margin-top: 0.75rem;">
+                    <a asp-action="Index" class="btn btn-outline btn-sm">Hammadde Pazarına Git</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <table class="data-table" id="reservationsTable" style="margin: 0;">
+                <thead>
+                    <tr>
+                        <th>Lot No</th>
+                        <th>Üretici Fabrika</th>
+                        <th>Malzeme Cinsi</th>
+                        <th>Miktar</th>
+                        <th>Opsiyon Süresi</th>
+                        <th>Durum</th>
+                        <th style="text-align: right;">Eylemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in Model)
+                    {
+                        var isCompleted = b.Status == BatchStatus.Recycled;
+                        var statusKey = isCompleted ? "recycled" : "matched";
+                        var now = DateTime.UtcNow;
+                        var hoursLeft = b.ReservationExpiresAt.HasValue ? Math.Max(0, (int)(b.ReservationExpiresAt.Value - now).TotalHours) : 72;
+                        var isExpired = b.ReservationExpiresAt.HasValue && b.ReservationExpiresAt.Value < now && !isCompleted;
+
+                        <tr class="reservation-row" data-status="@statusKey" data-search="@b.LotNo.ToLower() @b.PassportCode.ToLower() @(b.Company?.Name?.ToLower() ?? "") @b.MaterialType.ToLower()">
+                            <td>
+                                <strong style="font-family: var(--font-mono); font-size: 0.85rem;">@b.LotNo</strong>
+                                <div style="font-size: 0.7rem; color: #64748b;">@b.PassportCode</div>
+                            </td>
+                            <td>
+                                <div>@b.Company?.Name</div>
+                                <div style="font-size: 0.72rem; color: #64748b;">@b.Company?.OsbRegion</div>
+                            </td>
+                            <td><strong>@b.MaterialType</strong></td>
+                            <td>
+                                <div>@((b.WeightKg / 1000.0).ToString("0.00")) t</div>
+                                @if (b.ScaleWeightKg.HasValue)
+                                {
+                                    <div style="font-size: 0.72rem; color: #059669; font-weight: 600;">
+                                        Kantar @((b.ScaleWeightKg.Value / 1000.0).ToString("0.00")) t
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                @if (isCompleted)
+                                {
+                                    <span style="font-size: 0.75rem; color: #059669; font-weight: 600;">Kabul Edildi</span>
+                                }
+                                else if (isExpired)
+                                {
+                                    <span style="font-size: 0.75rem; color: #dc2626; font-weight: 700; background: #fef2f2; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid #fecaca;">Süresi Doldu</span>
+                                }
+                                else
+                                {
+                                    <span style="font-size: 0.75rem; color: #d97706; font-weight: 600; background: #fffbeb; padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid #fde68a;">
+                                        Kalan @hoursLeft saat
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @BatchStatusDisplay.CssClass(b.Status)">
+                                    @BatchStatusDisplay.Label(b.Status)
+                                </span>
+                            </td>
+                            <td style="text-align: right;">
+                                <div style="display: inline-flex; gap: 0.4rem; align-items: center;">
+                                    <a asp-controller="Batch" asp-action="Details" asp-route-id="@b.Id" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">
+                                        Pasaport
+                                    </a>
+
+                                    @if (!isCompleted)
+                                    {
+                                        <button type="button" class="btn btn-primary btn-sm" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;"
+                                                onclick="openScaleModal('@b.Id', '@b.LotNo', '@b.WeightKg')">
+                                            Kantar ve Kabul
+                                        </button>
+
+                                        <form asp-action="CancelReservation" method="post" style="margin: 0; display: inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@b.Id" />
+                                            <button type="submit" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.35rem 0.5rem; color: #dc2626; border-color: #fca5a5;"
+                                                    onclick="return confirm('@b.LotNo rezervasyonunu iptal edip partiyi pazara geri salmak istiyor musunuz?');">
+                                                İptal
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span style="font-size: 0.75rem; color: #059669; font-weight: 700; background: #ecfdf5; padding: 0.35rem 0.65rem; border-radius: 6px; border: 1px solid #a7f3d0;">
+                                            Teslim Doğrulandı
+                                        </span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<!-- Kantar ve Malzeme Kabul Modalı -->
+<div id="scaleModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div style="background: #ffffff; border-radius: 12px; width: 100%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); overflow: hidden; margin: 1rem;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #0f172a;" id="modalLotTitle">Saha Kantar ve Sevk Kabulü</h3>
+                <div style="font-size: 0.8rem; color: #64748b; margin-top: 0.2rem;">Lojistik kantar tartımını ve sevk irsaliyesini giriniz</div>
+            </div>
+            <button type="button" onclick="closeScaleModal()" style="background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #94a3b8;">&times;</button>
+        </div>
+
+        <form asp-action="ConfirmDelivery" method="post" style="padding: 1.5rem; margin: 0;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="modalBatchId" name="id" value="" />
+
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.82rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">
+                    Sevk İrsaliyesi Numarası
+                </label>
+                <input type="text" name="waybillNo" class="form-control" placeholder="Örn IRS2026-8841" required />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">
+                        Kantar Tartımı Net Kilogram
+                    </label>
+                    <input type="number" step="0.1" id="modalScaleWeight" name="scaleWeightKg" class="form-control" placeholder="Örn 14850" required />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.82rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">
+                        Kantar Fiş Numarası
+                    </label>
+                    <input type="text" name="scaleReceiptNo" class="form-control" placeholder="Örn KNT-5491" />
+                </div>
+            </div>
+
+            <div style="background: #f8fafc; border-radius: 8px; padding: 0.75rem 1rem; border: 1px solid #e2e8f0; font-size: 0.78rem; color: #475569; margin-bottom: 1.25rem;">
+                Onay verildiğinde partinin dijital pasaportu kapatılır ve geri kazanılan ikincil hammadde miktarınız tesisinizin resmi ESG bilançosuna işlenir.
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                <button type="button" onclick="closeScaleModal()" class="btn btn-outline btn-sm">Vazgeç</button>
+                <button type="submit" class="btn btn-primary btn-sm">Onayla ve Döngüyü Kapat</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function filterReservations() {
+        var query = (document.getElementById('reservationSearch')?.value || '').toLowerCase().trim();
+        var status = (document.getElementById('statusFilter')?.value || '').toLowerCase().trim();
+        var rows = document.querySelectorAll('.reservation-row');
+
+        rows.forEach(function (row) {
+            var searchData = row.getAttribute('data-search') || '';
+            var rowStatus = row.getAttribute('data-status') || '';
+
+            var matchesQuery = !query || searchData.indexOf(query) !== -1;
+            var matchesStatus = !status || rowStatus === status;
+
+            if (matchesQuery && matchesStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function openScaleModal(id, lotNo, declaredKg) {
+        document.getElementById('modalBatchId').value = id;
+        document.getElementById('modalLotTitle').innerText = lotNo + ' Saha Kantar Kabulü';
+        document.getElementById('modalScaleWeight').value = declaredKg;
+        var modal = document.getElementById('scaleModal');
+        modal.style.display = 'flex';
+    }
+
+    function closeScaleModal() {
+        var modal = document.getElementById('scaleModal');
+        modal.style.display = 'none';
+    }
+</script>

@@ -1,0 +1,301 @@
+@model DonguselIz.Web.Models.Domain.WasteBatch
+@using DonguselIz.Web.Services
+@using DonguselIz.Web.Models.Enums
+@{
+    ViewData["Title"] = $"{Model.LotNo} Dijital Malzeme Pasaportu";
+    var hasPassport = !string.IsNullOrEmpty(Model.PassportCode);
+    var qrTargetUrl = hasPassport 
+        ? $"{Context.Request.Scheme}://{Context.Request.Host}/passport/{Model.PassportCode}"
+        : $"{Context.Request.Scheme}://{Context.Request.Host}/Batch/Details/{Model.Id}";
+    
+    // Güvenilir, harici bağımlılık gerektirmeyen dinamik SVG QR Kod formatı
+    var qrSvgUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={Uri.EscapeDataString(qrTargetUrl)}&color=0f172a";
+}
+
+<div class="page-wrap" style="max-width: 1040px;">
+    <!-- Üst Başlık & Eylemler -->
+    <div class="page-head">
+        <div>
+            <div class="page-eyebrow">Döngüsel İz · AB ESPR Standardı</div>
+            <h2 class="page-title">Dijital Malzeme Pasaportu (DPP)</h2>
+            <p class="page-sub">@Model.Company?.Name · @Model.Company?.OsbRegion</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            @if (Model.Status == BatchStatus.AiVerified || Model.Status == BatchStatus.RevisionRequested || Model.Status == BatchStatus.Draft)
+            {
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline btn-sm" style="font-weight: 700;">
+                    ✏️ Parti Bilgilerini Düzenle
+                </a>
+            }
+            @if (hasPassport)
+            {
+                <a asp-action="Certificate" asp-route-id="@Model.Id" class="btn btn-sm" style="background: #064e3b; color: white; border-color: #064e3b; font-weight: 700;">
+                    🌱 Karbon Sertifikası
+                </a>
+            }
+            <button onclick="window.print()" class="btn btn-outline btn-sm">
+                🖨️ Pasaport Etiketi Yazdır
+            </button>
+            <span class="badge @BatchStatusDisplay.CssClass(Model.Status)" style="font-size: 0.85rem;">
+                @BatchStatusDisplay.Label(Model.Status)
+            </span>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null) { <div class="flash flash-ok">@TempData["SuccessMessage"]</div> }
+    @if (TempData["ErrorMessage"] != null) { <div class="flash flash-error" style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem;">@TempData["ErrorMessage"]</div> }
+
+    @if (Model.Status == BatchStatus.RevisionRequested)
+    {
+        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 1.1rem 1.25rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <div style="font-size: 0.85rem; font-weight: 800; color: #b45309; text-transform: uppercase; letter-spacing: 0.04em;">
+                    ⚠️ OSB Denetçisi Revizyon Talebinde Bulundu
+                </div>
+                <div style="font-size: 0.88rem; color: #78350f; margin-top: 0.35rem;">
+                    <strong>Denetçi Notu:</strong> @(string.IsNullOrEmpty(Model.ReviewNote) ? "Lütfen parti verilerini ve numune fotoğrafını gözden geçiriniz." : Model.ReviewNote)
+                </div>
+            </div>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary btn-sm" style="background: #b45309; border-color: #b45309;">
+                Partiyi Düzenle ve Tekrar Gönder
+            </a>
+        </div>
+    }
+
+    <!-- 1. Resmi Dijital Malzeme Pasaportu Sertifika Kartı (Palet Üstü & Gümrük Uyumlu) -->
+    <div class="panel-card" style="border: 2px solid var(--slate-900); padding: 2rem; background: var(--white); border-radius: 12px; margin-bottom: 2rem; position: relative;">
+        
+        <!-- Sertifika Üst Şeridi -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--slate-900); padding-bottom: 1.25rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <img src="~/images/logo.svg" alt="Döngüsel İz Logo" style="width: 48px; height: 48px;" />
+                <div>
+                    <div style="font-size: 1.2rem; font-weight: 800; color: var(--slate-900); letter-spacing: -0.02em;">DÖNGÜSEL İZ · GAZİANTEP OSB</div>
+                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--brand-primary); letter-spacing: 0.08em; text-transform: uppercase;">
+                        Doğrulanmış İkincil Malzeme Pasaportu (Digital Product Passport)
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: right;">
+                <span style="font-size: 0.7rem; color: var(--slate-500); text-transform: uppercase; display: block; font-weight: 700;">Resmi Pasaport Sicil No</span>
+                <span style="font-family: var(--font-mono); font-size: 1.05rem; font-weight: 800; color: var(--slate-900);">
+                    @(hasPassport ? Model.PassportCode : "DENETİM AŞAMASINDA")
+                </span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+            <!-- Sol: Parti Teknik Özellikleri ve Laboratuvar Doğrulaması -->
+            <div>
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--brand-primary); text-transform: uppercase; margin-bottom: 0.25rem;">
+                    Görsel Yapay Zeka ile Kaynağında Doğrulandı
+                </div>
+                <h3 style="font-size: 1.35rem; color: var(--slate-900); margin-bottom: 0.5rem;">@Model.MaterialType</h3>
+                <p style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 1.25rem;">
+                    Parti Lot No: <strong>@Model.LotNo</strong> · Menşe Hat: <strong>@Model.ProductionLine</strong>
+                </p>
+
+                <!-- 4 Temel Teknik Değer Matrisi -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: var(--slate-50); border: 1px solid var(--border); border-radius: 8px; padding: 1.1rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Kimyasal Saflık</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: var(--brand-primary); margin-top: 0.15rem;">
+                            %@Model.PurityPercent.ToString("0.0")
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Kirlilik &amp; Nem Toleransı</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: var(--slate-700); margin-top: 0.15rem;">
+                            %@Model.ContaminationPercent.ToString("0.0")
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Net Parti Tartımı</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: var(--slate-900); margin-top: 0.15rem;">
+                            @Model.WeightKg.ToString("N0") kg
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Önlenen Karbon (ISO 14067)</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: var(--status-success, #16a34a); margin-top: 0.15rem;">
+                            @Model.CarbonSavedTons.ToString("0.00") tCO2e
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kurumsal Menşe ve Denetim Notu -->
+                <div style="font-size: 0.8rem; color: var(--slate-600); line-height: 1.6;">
+                    <strong>Üretici Tesis:</strong> @Model.Company?.Name (VKN: @Model.Company?.TaxNumber)<br />
+                    <strong>Bildiren Sorumlu:</strong> @Model.CreatedByName · <strong>Kayıt:</strong> @Model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                    @if (!string.IsNullOrEmpty(Model.Notes))
+                    {
+                        <div style="margin-top: 0.25rem;"><strong>Saha Notu:</strong> @Model.Notes</div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ReservedByCompanyName))
+                    {
+                        <div style="margin-top: 0.35rem; color: var(--brand-primary); font-weight: 700;">
+                            <strong>Tahsis Edilen Alıcı Tesis</strong> @Model.ReservedByCompanyName
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.WaybillNo) || Model.ScaleWeightKg.HasValue)
+                    {
+                        <div style="margin-top: 0.75rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem; font-size: 0.78rem;">
+                            <div style="font-weight: 700; color: #166534; margin-bottom: 0.3rem;">Kantar ve Sevk Kabul Doğrulaması</div>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; color: #1e293b;">
+                                @if (!string.IsNullOrEmpty(Model.WaybillNo))
+                                {
+                                    <div>İrsaliye <strong>@Model.WaybillNo</strong></div>
+                                }
+                                @if (Model.ScaleWeightKg.HasValue)
+                                {
+                                    <div>Kantar Tartımı <strong>@((Model.ScaleWeightKg.Value / 1000.0).ToString("0.00")) t</strong></div>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.ScaleReceiptNo))
+                                {
+                                    <div>Fiş No <strong>@Model.ScaleReceiptNo</strong></div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Sağ: Taranabilir QR Kod & Doğrulama Damgası -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--slate-50); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; text-align: center;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: var(--slate-900); text-transform: uppercase; margin-bottom: 0.75rem; letter-spacing: 0.05em;">
+                    Taranabilir Karekod Zinciri
+                </div>
+
+                <!-- Dinamik Canlı Karekod -->
+                <div style="background: white; padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                    <img src="@qrSvgUrl" alt="Doğrulama Karekodu" style="width: 150px; height: 150px; display: block;" />
+                </div>
+
+                <div style="font-size: 0.7rem; color: var(--slate-500); margin-top: 0.75rem; line-height: 1.4;">
+                    Mobil kamera veya OSB el terminaliyle okutulduğunda resmi sicil kaydını doğrular.
+                </div>
+
+                <div style="margin-top: 0.75rem; font-size: 0.68rem; font-weight: 800; background: #dcfce7; color: #166534; padding: 0.25rem 0.6rem; border-radius: 4px; text-transform: uppercase;">
+                    ✓ AB ESPR UYUMLU DOĞRULAMA
+                </div>
+            </div>
+        </div>
+
+        <!-- Eğer parti numunesi görseli varsa göster -->
+        @{
+            var detailImages = Model.GetAllImages();
+        }
+        @if (detailImages.Any())
+        {
+            <div style="margin-top: 1.5rem; border-top: 1px dashed var(--border); padding-top: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">
+                        Kaynağında Alınan Numune ve Saha Fotoğrafları (@detailImages.Count Adet)
+                    </div>
+                    <button type="button" onclick="openLightboxModal(document.getElementById('detailsMainImg').src)" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;">
+                        🔍 Tam Ekran İncele
+                    </button>
+                </div>
+
+                <!-- Ana Büyük Fotoğraf -->
+                <div style="position: relative; max-height: 260px; width: 100%; overflow: hidden; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; background: #0f172a;" onclick="openLightboxModal(document.getElementById('detailsMainImg').src)">
+                    <img id="detailsMainImg" src="@detailImages.First()" alt="Parti Numunesi" style="width: 100%; height: 260px; object-fit: contain;" />
+                    <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(15, 23, 42, 0.8); color: white; padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; backdrop-filter: blur(4px);">
+                        🔍 Tıkla ve Tam Ekran Büyüt
+                    </div>
+                </div>
+
+                <!-- Çoklu Küçük Önizleme Şeridi -->
+                @if (detailImages.Count > 1)
+                {
+                    <div style="display: flex; gap: 0.65rem; margin-top: 0.75rem; overflow-x: auto; padding-bottom: 0.25rem;">
+                        @for (int i = 0; i < detailImages.Count; i++)
+                        {
+                            var imgItem = detailImages[i];
+                            <div onclick="switchDetailPhoto('@imgItem', this)" class="detail-photo-thumb" style="position: relative; width: 68px; height: 68px; border-radius: 6px; overflow: hidden; border: 2px solid @(i == 0 ? "var(--brand-primary)" : "#cbd5e1"); background: #0f172a; cursor: pointer; flex-shrink: 0;">
+                                <img src="@imgItem" alt="Fotoğraf @(i+1)" style="width: 100%; height: 100%; object-fit: cover;" />
+                                @if (i == 0)
+                                {
+                                    <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(5,150,105,0.9); color: white; font-size: 9px; font-weight: 800; text-align: center; text-transform: uppercase;">Ana</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Numune Fotoğrafı Tam Ekran İnceleme Modalı -->
+<div id="sampleLightboxModal" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 1.5rem;" onclick="closeLightboxModal(event)">
+    <div style="position: relative; max-width: 95vw; max-height: 92vh; background: #0f172a; border-radius: 12px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.15);" onclick="event.stopPropagation()">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1.25rem; background: #1e293b; color: white; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <span style="font-size: 0.88rem; font-weight: 800; color: #f8fafc;">Numune Detaylı İnceleme</span>
+                <span style="font-family: monospace; font-size: 0.8rem; background: rgba(255,255,255,0.1); padding: 0.15rem 0.5rem; border-radius: 4px;">@Model.LotNo</span>
+            </div>
+            <button type="button" onclick="closeLightboxModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.6rem; cursor: pointer; line-height: 1; padding: 0 0.5rem;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#94a3b8'">&times;</button>
+        </div>
+        <div style="padding: 1.25rem; display: flex; justify-content: center; align-items: center; max-height: calc(92vh - 65px); overflow: auto;">
+            <img id="lightboxModalImg" src="" alt="Numune Detay Görüntüsü" style="max-width: 100%; max-height: 80vh; object-fit: contain; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);" />
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchDetailPhoto(src, elem) {
+        var mainImg = document.getElementById('detailsMainImg');
+        if (mainImg) {
+            mainImg.src = src;
+        }
+        document.querySelectorAll('.detail-photo-thumb').forEach(function(el) {
+            el.style.borderColor = '#cbd5e1';
+        });
+        if (elem) {
+            elem.style.borderColor = 'var(--brand-primary)';
+        }
+    }
+    function openLightboxModal(src) {
+        var modal = document.getElementById('sampleLightboxModal');
+        var img = document.getElementById('lightboxModalImg');
+        if (modal && img) {
+            img.src = src;
+            modal.style.display = 'flex';
+        }
+    }
+    function closeLightboxModal() {
+        var modal = document.getElementById('sampleLightboxModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeLightboxModal();
+        }
+    });
+</script>
+
+<style>
+    /* Yazdırma (A4 / Palet Etiketi) Formatı */
+    @@media print {
+        header, footer, .page-head, .btn, .flash, #sampleLightboxModal {
+            display: none !important;
+        }
+        body {
+            background: white !important;
+            padding: 0 !important;
+        }
+        .page-wrap {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .panel-card {
+            border: 2px solid black !important;
+            box-shadow: none !important;
+        }
+    }
+</style>

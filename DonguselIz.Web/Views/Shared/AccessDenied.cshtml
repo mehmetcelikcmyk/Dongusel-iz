@@ -1,0 +1,21 @@
+@{
+    ViewData["Title"] = "Erişim Yetkisi Yetersiz";
+}
+
+<div class="auth-container" style="max-width: 540px; margin: 4rem auto; text-align: center;">
+    <div class="card" style="padding: 2.5rem 2rem; border-color: #fecaca; background-color: #fffafb;">
+        <div style="width: 56px; height: 56px; margin: 0 auto 1.25rem; background-color: #fee2e2; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--status-danger); font-weight: 800; font-size: 1.5rem;">
+            !
+        </div>
+
+        <h2 style="font-size: 1.3rem; color: #991b1b; margin-bottom: 0.5rem;">Yetkisiz Sayfa Erişimi</h2>
+        <p style="font-size: 0.85rem; color: var(--color-slate-600); margin-bottom: 1.5rem; line-height: 1.5;">
+            Bu adrese erişim sağlamak için tesisinizin ve tanımlı kurumsal e-posta hesabınızın uygun yetki düzeyine sahip olması gerekir. Güvenlik protokolleri gereği erişim engellendi.
+        </p>
+
+        <div style="display: flex; justify-content: center; gap: 0.75rem;">
+            <a asp-controller="Demo" asp-action="Index" class="btn btn-outline btn-sm">Demo Tanıtım Ekranına Dön</a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-sm">Farklı Hesapla Giriş Yap</a>
+        </div>
+    </div>
+</div>

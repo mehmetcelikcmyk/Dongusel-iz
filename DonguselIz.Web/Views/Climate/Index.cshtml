@@ -1,0 +1,312 @@
+@model DonguselIz.Web.Models.ViewModels.ClimateDashboardViewModel
+@{
+    ViewData["Title"] = "Gaziantep OSB İklim ve Karbon Karnesi";
+}
+
+<div class="page-wrap" style="max-width: 1240px; margin-top: 1.5rem;">
+
+    <!-- Üst Başlık ve Yazdır / Paylaş Aksiyonu -->
+    <div class="page-head" style="align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 1.25rem;">
+        <div>
+            <span class="page-eyebrow" style="color: #059669; font-weight: 800;">Bölgesel Endüstriyel Simbiyoz &amp; İklim İzleme</span>
+            <h2 class="page-title" style="font-size: 1.6rem; font-weight: 800; color: var(--slate-900);">
+                Gaziantep OSB İklim, Karbon ve Döngüsellik Karnesi
+            </h2>
+            <p class="page-sub" style="font-size: 0.9rem; color: var(--slate-600); margin-top: 0.25rem;">
+                ISO 14067 Ürün Karbon Ayak İzi ve AB ESPR Döngüsel Ekonomi regülasyonları uyarınca sahadan doğrulanmış canlı çevresel etki göstergeleri.
+            </p>
+        </div>
+        <div class="action-row" style="gap: 0.75rem;">
+            <button onclick="window.print()" class="btn btn-outline" style="border-color: #cbd5e1; background: white; font-weight: 700; color: var(--slate-700);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 0.4rem;">
+                    <path d="M6 9V2h12v7"></path>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                İklim Karnesini Yazdır
+            </button>
+            <a asp-controller="Market" asp-action="Index" class="btn btn-primary" style="background: #059669; border-color: #059669; font-weight: 700;">
+                Döngüsel Pazarı İncele
+            </a>
+        </div>
+    </div>
+
+    <!-- AB SKDM ve Karbon Kalkanı Öne Çıkan Bilgi Bandı -->
+    <div style="background: linear-gradient(135deg, #064e3b 0%, #065f46 60%, #047857 100%); color: white; border-radius: 12px; padding: 1.6rem 2rem; margin-bottom: 2rem; box-shadow: 0 10px 25px rgba(6, 78, 59, 0.15); display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: center;">
+        <div>
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.15); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.75rem;">
+                <span style="width: 8px; height: 8px; background: #34d399; border-radius: 50%; display: inline-block;"></span>
+                AB SKDM (CBAM) Karbon Vergisi Kalkanı
+            </div>
+            <h3 style="font-size: 1.45rem; font-weight: 800; line-height: 1.25; margin-bottom: 0.5rem;">
+                Gaziantep OSB İhracatçısına Sağlanan Karbon Koruması
+            </h3>
+            <p style="font-size: 0.9rem; color: #d1fae5; line-height: 1.5; margin: 0; max-width: 680px;">
+                Tesislerin çöpe veya kontrolsüz yakmaya göndermeyip dijital pasaportla döngüye soktuğu her ton hammadde, Avrupa Birliği Sınırda Karbon Düzenleme Mekanizması kapsamında öngörülen gümrük karbon ceza riskini doğrudan düşürmektedir.
+            </p>
+        </div>
+        <div style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; padding: 1.25rem; text-align: center;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: #a7f3d0; text-transform: uppercase; letter-spacing: 0.05em;">
+                Tahmini Engellenen Karbon Vergisi
+            </div>
+            <div style="font-size: 2.1rem; font-weight: 900; color: white; margin: 0.3rem 0; font-family: var(--font-mono, monospace);">
+                €@Model.EstimatedCbamTaxSavedEuros.ToString("N0")
+            </div>
+            <div style="font-size: 0.85rem; color: #a7f3d0; font-weight: 600;">
+                ≈ @Model.EstimatedCbamTaxSavedTry.ToString("N0") TL Yerli Tasarruf
+            </div>
+        </div>
+    </div>
+
+    <!-- 4 Ana Çevresel Etki Gösterge Kartı -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem;">
+        
+        <div class="panel-card" style="margin: 0; border-top: 4px solid #059669; padding: 1.4rem; position: relative;">
+            <span style="font-size: 0.72rem; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.05em;">
+                Doğrulanmış Karbon Tasarrufu
+            </span>
+            <div style="font-size: 2rem; font-weight: 900; color: var(--slate-900); margin: 0.4rem 0 0.2rem; font-family: var(--font-mono, monospace);">
+                @Model.TotalCarbonSavedTons.ToString("N2") <span style="font-size: 1rem; font-weight: 700; color: var(--slate-500);">tCO₂e</span>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--slate-600); margin: 0;">
+                Birincil hammadde ekstraksiyonuna kıyasla önlenen net sera gazı salımı.
+            </p>
+        </div>
+
+        <div class="panel-card" style="margin: 0; border-top: 4px solid #0284c7; padding: 1.4rem;">
+            <span style="font-size: 0.72rem; font-weight: 800; color: #0284c7; text-transform: uppercase; letter-spacing: 0.05em;">
+                Eşdeğer Ağaç Tutumu
+            </span>
+            <div style="font-size: 2rem; font-weight: 900; color: var(--slate-900); margin: 0.4rem 0 0.2rem; font-family: var(--font-mono, monospace);">
+                @Model.EquivalentTreesPlanted.ToString("N0") <span style="font-size: 1rem; font-weight: 700; color: var(--slate-500);">Ağaç / Yıl</span>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--slate-600); margin: 0;">
+                Önlenen emisyonun yetişkin bir ormanın yıllık karbon yutağına denkliği.
+            </p>
+        </div>
+
+        <div class="panel-card" style="margin: 0; border-top: 4px solid #d97706; padding: 1.4rem;">
+            <span style="font-size: 0.72rem; font-weight: 800; color: #d97706; text-transform: uppercase; letter-spacing: 0.05em;">
+                Fosil Yakıt Tasarrufu
+            </span>
+            <div style="font-size: 2rem; font-weight: 900; color: var(--slate-900); margin: 0.4rem 0 0.2rem; font-family: var(--font-mono, monospace);">
+                @Model.ConservedCrudeOilBarrels.ToString("N1") <span style="font-size: 1rem; font-weight: 700; color: var(--slate-500);">Varil Petrol</span>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--slate-600); margin: 0;">
+                Orijinal polimer sentezi yapılmayarak korunmuş ham petrol rezervi.
+            </p>
+        </div>
+
+        <div class="panel-card" style="margin: 0; border-top: 4px solid #7c3aed; padding: 1.4rem;">
+            <span style="font-size: 0.72rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.05em;">
+                Kurtarılan Depolama Hacmi
+            </span>
+            <div style="font-size: 2rem; font-weight: 900; color: var(--slate-900); margin: 0.4rem 0 0.2rem; font-family: var(--font-mono, monospace);">
+                @Model.DivertedLandfillCubicMeters.ToString("N1") <span style="font-size: 1rem; font-weight: 700; color: var(--slate-500);">m³ Alan</span>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--slate-600); margin: 0;">
+                Gaziantep katı atık depolama tesislerine gitmesi önlenen atık hacmi.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- 2 Kolon: Sol Malzeme Dağılımı - Sağ Sistem Özeti -->
+    <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 1.5rem; margin-bottom: 2rem;">
+
+        <!-- Sol: Malzeme Bazlı Karbon ve Ağırlık Katkısı -->
+        <div class="panel-card" style="margin: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--slate-900); margin: 0;">
+                    Malzeme Türü Bazlı Karbon ve Tonaj Katkısı
+                </h3>
+                <span style="font-size: 0.75rem; color: var(--slate-500); font-weight: 700;">Toplam: @Model.TotalMaterialWeightTons Ton</span>
+            </div>
+
+            @if (!Model.MaterialMetrics.Any())
+            {
+                <div class="empty-state">Henüz onaylanmış malzeme verisi bulunmuyor.</div>
+            }
+            else
+            {
+                <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+                    @foreach (var mat in Model.MaterialMetrics)
+                    {
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                                <span style="font-size: 0.88rem; font-weight: 700; color: var(--slate-800);">@mat.MaterialName</span>
+                                <span style="font-size: 0.82rem; font-weight: 800; color: #059669; font-family: var(--font-mono, monospace);">
+                                    @mat.CarbonSavedTons.ToString("N2") tCO₂e (%@mat.PercentageShare)
+                                </span>
+                            </div>
+                            <div style="background: var(--slate-100, #f1f5f9); border-radius: 6px; height: 10px; overflow: hidden; width: 100%;">
+                                <div style="background: linear-gradient(90deg, #10b981, #059669); height: 100%; border-radius: 6px; width: @(mat.PercentageShare)%;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--slate-500); margin-top: 0.25rem;">
+                                <span>Toplam @mat.WeightTons Ton kurtarıldı</span>
+                                <span>@mat.BatchCount Parti onaylandı</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Sağ: Tesis ve Parti İstatistikleri -->
+        <div class="panel-card" style="margin: 0; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--slate-900); margin-bottom: 1.25rem;">
+                    Döngüsel İklim Yönetişimi
+                </h3>
+                
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);">
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 700; color: var(--slate-800);">Kayıtlı Toplam Parti</div>
+                            <div style="font-size: 0.72rem; color: var(--slate-500);">Kaynağında yapay zeka ile analiz edilen bildirimler</div>
+                        </div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: var(--slate-900); font-family: var(--font-mono, monospace);">
+                            @Model.TotalBatchesCount
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);">
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 700; color: var(--slate-800);">Aktif Dijital Pasaport</div>
+                            <div style="font-size: 0.72rem; color: var(--slate-500);">OSB denetimi onaylanmış ve QR etiketli parti</div>
+                        </div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: #059669; font-family: var(--font-mono, monospace);">
+                            @Model.ActivePassportsCount
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);">
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 700; color: var(--slate-800);">Kapalı Döngü Geri Kazanım</div>
+                            <div style="font-size: 0.72rem; color: var(--slate-500);">Geri dönüşüm tesisinde yeni ürüne dönüştürülen</div>
+                        </div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: #0284c7; font-family: var(--font-mono, monospace);">
+                            @Model.RecycledBatchesCount
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 700; color: var(--slate-800);">Kapalı Döngü Karbon Kazancı</div>
+                            <div style="font-size: 0.72rem; color: var(--slate-500);">Nihai dönüşümle kesinleşmiş sera gazı kesintisi</div>
+                        </div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: #059669; font-family: var(--font-mono, monospace);">
+                            @Model.ClosedLoopCarbonSavedTons.ToString("N2") tCO₂e
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: var(--slate-50); border: 1px dashed var(--border); border-radius: 8px; padding: 0.9rem; margin-top: 1.5rem; font-size: 0.78rem; color: var(--slate-600); line-height: 1.45;">
+                <strong>Veri Doğrulama Protokolü:</strong> Hesaplamalar Türkiye Sanayi Emisyon Faktörleri ve ISO 14067 ürün yaşam döngüsü GHG protokolü metodolojisiyle anlık yürütülmektedir.
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Tesisler Arası Karbon ve Döngüsellik Liderlik Tablosu -->
+    <div class="panel-card">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+                <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--slate-900); margin: 0;">
+                    Gaziantep OSB Yeşil Tesisler ve İklim Liderliği Sıralaması
+                </h3>
+                <p style="font-size: 0.82rem; color: var(--slate-500); margin-top: 0.2rem;">
+                    Bölgede en yüksek karbon engellemesi ve döngüsel malzeme hareketi gerçekleştiren öncü sanayi kuruluşları.
+                </p>
+            </div>
+            <span class="badge badge-ok" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;">
+                Aktif Katılımcı: @Model.TopCompanies.Count Tesis
+            </span>
+        </div>
+
+        @if (!Model.TopCompanies.Any())
+        {
+            <div class="empty-state">Henüz liderlik sıralamasında yer alacak onaylanmış tesis bulunmuyor.</div>
+        }
+        else
+        {
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">Sıra</th>
+                            <th>Sanayi Kuruluşu</th>
+                            <th>Bölge / Konum</th>
+                            <th>Rolü</th>
+                            <th>Onaylı Parti</th>
+                            <th>Kurtarılan Malzeme</th>
+                            <th>Önlenen Karbon</th>
+                            <th>İklim Performans Rozeti</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int rank = 1; }
+                        @foreach (var comp in Model.TopCompanies)
+                        {
+                            <tr>
+                                <td style="font-weight: 800; color: var(--slate-400); font-family: var(--font-mono, monospace);">
+                                    #@rank
+                                </td>
+                                <td>
+                                    <div style="font-weight: 800; color: var(--slate-900);">@comp.CompanyName</div>
+                                </td>
+                                <td style="color: var(--slate-600); font-size: 0.82rem;">
+                                    @comp.OsbRegion
+                                </td>
+                                <td>
+                                    <span class="badge @(comp.PrimaryRole.Contains("Geri") ? "badge-info" : "badge-muted")">
+                                        @comp.PrimaryRole
+                                    </span>
+                                </td>
+                                <td style="font-weight: 700; font-family: var(--font-mono, monospace);">
+                                    @comp.BatchCount
+                                </td>
+                                <td style="font-weight: 700; color: var(--slate-800); font-family: var(--font-mono, monospace);">
+                                    @comp.TotalWeightTons Ton
+                                </td>
+                                <td style="font-weight: 800; color: #059669; font-size: 0.95rem; font-family: var(--font-mono, monospace);">
+                                    @comp.TotalCarbonSavedTons.ToString("N2") tCO₂e
+                                </td>
+                                <td>
+                                    <span style="display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.72rem; font-weight: 800; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;">
+                                        @comp.PerformanceBadge
+                                    </span>
+                                </td>
+                            </tr>
+                            rank++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+</div>
+
+<style>
+    @@media print {
+        header, footer, .action-row, .btn {
+            display: none !important;
+        }
+        body {
+            background: white !important;
+            padding: 0 !important;
+        }
+        .page-wrap {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .panel-card {
+            box-shadow: none !important;
+            border: 1px solid #cbd5e1 !important;
+            break-inside: avoid;
+        }
+    }
+</style>

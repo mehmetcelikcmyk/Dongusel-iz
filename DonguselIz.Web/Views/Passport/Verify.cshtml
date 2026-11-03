@@ -1,0 +1,136 @@
+@model DonguselIz.Web.Models.Domain.WasteBatch
+@using DonguselIz.Web.Services
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = $"{Model.PassportCode} - Resmi Pasaport Doğrulama";
+    var qrTargetUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/passport/{Model.PassportCode}";
+    var qrSvgUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={Uri.EscapeDataString(qrTargetUrl)}&color=064e3b";
+}
+
+<div class="page-wrap" style="max-width: 960px; margin-top: 1rem;">
+
+    <!-- Resmi Onay Bannerı -->
+    <div style="background: #ecfdf5; border: 2px solid #10b981; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.15rem; font-weight: 800; color: #065f46;">DOĞRULANMIŞ DİJİTAL MALZEME PASAPORTU</span>
+                    <span style="background: #059669; color: white; font-size: 0.68rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 4px;">AB ESPR UYUMLU</span>
+                </div>
+                <div style="font-size: 0.85rem; color: #047857; margin-top: 0.2rem;">
+                    Gaziantep Organize Sanayi Bölgesi Dijital Doğrulama Sicili üzerinde aktif ve geçerlidir.
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="/passport/@Model.PassportCode/certificate" class="btn btn-sm" style="background: #064e3b; color: white; font-weight: 700;">
+                🌱 Karbon Sertifikası
+            </a>
+            <button onclick="window.print()" class="btn btn-outline btn-sm" style="background: white; border-color: #a7f3d0; color: #065f46; font-weight: 700;">
+                Doğrulama Belgesini Yazdır
+            </button>
+        </div>
+    </div>
+
+    <!-- Sertifika Gövdesi -->
+    <div class="panel-card" style="padding: 2rem; border-radius: 12px; border: 1px solid var(--border); background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+        <div style="display: flex; justify-content: space-between; border-bottom: 2px solid var(--slate-900); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <span style="font-size: 0.72rem; color: var(--slate-500); text-transform: uppercase; font-weight: 700;">Resmi Pasaport Sicil Numarası</span>
+                <h3 style="font-family: var(--font-mono); font-size: 1.4rem; color: var(--slate-900); margin: 0.2rem 0 0;">@Model.PassportCode</h3>
+            </div>
+            <div style="text-align: right;">
+                <span style="font-size: 0.72rem; color: var(--slate-500); text-transform: uppercase; font-weight: 700;">Parti Durumu</span>
+                <div style="margin-top: 0.2rem;">
+                    <span class="badge @BatchStatusDisplay.CssClass(Model.Status)" style="font-size: 0.82rem; padding: 0.35rem 0.75rem;">
+                        @BatchStatusDisplay.Label(Model.Status)
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+            <!-- Sol Bilgiler -->
+            <div>
+                <div style="font-size: 0.8rem; font-weight: 800; color: var(--brand-primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem;">
+                    Menşe ve Üretim Kimliği
+                </div>
+                <h2 style="font-size: 1.45rem; color: var(--slate-900); margin-bottom: 0.3rem;">@Model.MaterialType</h2>
+                <div style="font-size: 0.9rem; color: var(--slate-600); margin-bottom: 1.25rem;">
+                    Üretici Tesis: <strong>@Model.Company?.Name</strong> · @Model.Company?.OsbRegion
+                </div>
+
+                <!-- 4'lü Teknik Metrik Matrisi -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: var(--slate-50); border: 1px solid var(--border); border-radius: 8px; padding: 1.1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Doğrulanan Kimyasal Saflık</div>
+                        <div style="font-size: 1.35rem; font-weight: 900; color: #059669; margin-top: 0.2rem;">
+                            %@Model.PurityPercent.ToString("0.0")
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Kirlilik / Nem Oranı</div>
+                        <div style="font-size: 1.35rem; font-weight: 900; color: var(--slate-700); margin-top: 0.2rem;">
+                            %@Model.ContaminationPercent.ToString("0.0")
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Parti Net Ağırlığı</div>
+                        <div style="font-size: 1.35rem; font-weight: 900; color: var(--slate-900); margin-top: 0.2rem;">
+                            @((Model.WeightKg / 1000.0).ToString("0.00")) Ton
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Önlenen Karbon Emisyonu</div>
+                        <div style="font-size: 1.35rem; font-weight: 900; color: #0284c7; margin-top: 0.2rem;">
+                            @Model.CarbonSavedTons.ToString("0.00") tCO2e
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detay Listesi -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.82rem;">
+                    <div><strong>Lot Takip No:</strong> @Model.LotNo</div>
+                    <div><strong>Üretim Hattı:</strong> @Model.ProductionLine</div>
+                    <div><strong>Bildirim Tarihi:</strong> @Model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                    <div><strong>Onay Tarihi:</strong> @(Model.ReviewedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm") ?? "Otomatik")</div>
+                    @if (!string.IsNullOrEmpty(Model.ReservedByCompanyName))
+                    {
+                        <div style="grid-column: 1 / -1; background: #f8fafc; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <strong>Alıcı / Dönüştürücü Tesis:</strong> @Model.ReservedByCompanyName
+                        </div>
+                    }
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <div style="margin-top: 1rem; font-size: 0.82rem; background: #fffbeb; border-left: 3px solid #f59e0b; padding: 0.6rem 0.85rem; border-radius: 0 6px 6px 0; color: #92400e;">
+                        <strong>Saha Ekspertiz Notu:</strong> @Model.Notes
+                    </div>
+                }
+            </div>
+
+            <!-- Sağ: QR Kod ve Numune Görseli -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 1.25rem;">
+                <!-- QR Kod Kutusu -->
+                <div style="background: white; border: 2px solid var(--slate-900); border-radius: 10px; padding: 1rem; text-align: center; width: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                    <img src="@qrSvgUrl" alt="QR Doğrulama Kodu" style="width: 160px; height: 160px; display: block; margin: 0 auto;" />
+                    <div style="font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; color: var(--slate-500); margin-top: 0.6rem;">
+                        KAREKOD İLE RESMİ DOĞRULAMA
+                    </div>
+                </div>
+
+                <!-- Numune Fotoğrafı -->
+                @if (!string.IsNullOrEmpty(Model.ImageBase64) && Model.ImageBase64.StartsWith("data:image"))
+                {
+                    <div style="width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid var(--border);">
+                        <img src="@Model.ImageBase64" alt="Doğrulanmış Numune" style="width: 100%; height: 140px; object-fit: cover; display: block;" />
+                        <div style="font-size: 0.7rem; color: var(--slate-500); text-align: center; padding: 0.35rem; background: var(--slate-50);">
+                            Kamera ile Taranan Numune
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,223 @@
+@model DonguselIz.Web.Models.Domain.WasteBatch
+@using DonguselIz.Web.Services
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = $"{Model.PassportCode} - Döngüsel Karbon Sertifikası";
+    var qrTargetUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/passport/{Model.PassportCode}";
+    var qrSvgUrl = $"https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={Uri.EscapeDataString(qrTargetUrl)}&color=064e3b";
+
+    // Karbon ve Çevre Hesaplamaları
+    var carbonTons = Model.CarbonSavedTons;
+    var weightTons = Math.Round(Model.WeightKg / 1000.0, 2);
+    var trees = (int)Math.Round(carbonTons * 45);
+    var barrelsOil = Math.Round(weightTons * 3.8, 1);
+    var landfillM3 = Math.Round(weightTons * 2.85, 1);
+    var cbamEuros = Math.Round(carbonTons * 85.0, 0);
+}
+
+<div class="page-wrap certificate-page-wrap" style="max-width: 860px; margin: 1.5rem auto;">
+
+    <!-- Üst Kontrol Çubuğu (Yazdırma esnasında gizlenir) -->
+    <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+        <div>
+            <span style="font-size: 0.75rem; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.05em;">Resmi İklim ve Döngüsellik Belgesi</span>
+            <div style="font-size: 1.1rem; font-weight: 800; color: var(--slate-900);">@Model.PassportCode</div>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline btn-sm">
+                Parti Detayına Dön
+            </a>
+            <button onclick="window.print()" class="btn btn-primary btn-sm" style="background: #064e3b; border-color: #064e3b; font-weight: 700;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 0.35rem;">
+                    <path d="M6 9V2h12v7"></path>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                Resmi Sertifikayı Yazdır (A4)
+            </button>
+        </div>
+    </div>
+
+    <!-- Resmi A4 Sertifika Belgesi -->
+    <div class="certificate-paper" style="background: white; border: 2px solid #064e3b; border-radius: 8px; padding: 3rem 2.8rem; box-shadow: 0 10px 30px rgba(0,0,0,0.06); position: relative;">
+        
+        <!-- Çerçeve İç Şeridi -->
+        <div style="position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px; border: 1px solid #a7f3d0; pointer-events: none; border-radius: 4px;"></div>
+
+        <!-- Başlık ve Logolar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #064e3b; padding-bottom: 1.25rem; margin-bottom: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <img src="~/images/logo.svg" alt="Döngüsel İz Logo" style="width: 54px; height: 54px;" />
+                <div>
+                    <h1 style="font-size: 1.25rem; font-weight: 900; color: #064e3b; letter-spacing: -0.01em; margin: 0; line-height: 1.2;">
+                        GAZİANTEP ORGANİZE SANAYİ BÖLGESİ
+                    </h1>
+                    <div style="font-size: 0.8rem; font-weight: 800; color: #059669; letter-spacing: 0.06em; text-transform: uppercase;">
+                        Döngüsel Ekonomi &amp; İklim Etki Doğrulama Sicili
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 0.68rem; font-weight: 800; color: var(--slate-500); text-transform: uppercase;">Sertifika Belge No</div>
+                <div style="font-family: var(--font-mono, monospace); font-size: 1.15rem; font-weight: 900; color: #064e3b;">
+                    @Model.PassportCode
+                </div>
+                <div style="font-size: 0.68rem; color: #059669; font-weight: 700; margin-top: 0.15rem;">
+                    ISO 14067 &amp; AB ESPR UYUMLU
+                </div>
+            </div>
+        </div>
+
+        <!-- Sertifika Başlık Metni -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--slate-900); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.35rem;">
+                DÖNGÜSEL MALZEME VE KARBON ENGELLEME TESCİL BELGESİ
+            </h2>
+            <p style="font-size: 0.85rem; color: var(--slate-600); max-width: 650px; margin: 0 auto; line-height: 1.45;">
+                Aşağıda teknik ve çevresel parametreleri belirtilen hammadde partisinin, Gaziantep OSB Dijital Malzeme Pasaportu denetim protokolünden geçtiği ve birincil kaynak tüketimini önleyerek karbon salımını engellediği tescil edilmiştir.
+            </p>
+        </div>
+
+        <!-- Parti Kimlik Tablosu -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.2rem; margin-bottom: 1.5rem;">
+            <div style="font-size: 0.75rem; font-weight: 800; color: #064e3b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+                Menşe ve Parti Kimlik Bilgileri
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; font-size: 0.85rem;">
+                <div>
+                    <span style="display: block; font-size: 0.7rem; color: var(--slate-500); font-weight: 700; text-transform: uppercase;">Üretici Kuruluş</span>
+                    <strong style="color: var(--slate-900);">@Model.Company?.Name</strong>
+                </div>
+                <div>
+                    <span style="display: block; font-size: 0.7rem; color: var(--slate-500); font-weight: 700; text-transform: uppercase;">Tesis Konumu</span>
+                    <strong style="color: var(--slate-900);">@Model.Company?.OsbRegion</strong>
+                </div>
+                <div>
+                    <span style="display: block; font-size: 0.7rem; color: var(--slate-500); font-weight: 700; text-transform: uppercase;">Parti Lot Numarası</span>
+                    <strong style="color: var(--slate-900); font-family: var(--font-mono, monospace);">@Model.LotNo</strong>
+                </div>
+                <div>
+                    <span style="display: block; font-size: 0.7rem; color: var(--slate-500); font-weight: 700; text-transform: uppercase;">Malzeme Tanımı</span>
+                    <strong style="color: var(--slate-900);">@Model.MaterialType</strong>
+                </div>
+                <div>
+                    <span style="display: block; font-size: 0.7rem; color: var(--slate-500); font-weight: 700; text-transform: uppercase;">Üretim / Çıktı Hattı</span>
+                    <strong style="color: var(--slate-900);">@Model.ProductionLine</strong>
+                </div>
+                <div>
+                    <span style="display: block; font-size: 0.7rem; color: var(--slate-500); font-weight: 700; text-transform: uppercase;">Onay Tarihi</span>
+                    <strong style="color: var(--slate-900);">@(Model.ReviewedAt.HasValue ? Model.ReviewedAt.Value.ToString("dd.MM.yyyy HH:mm") : Model.CreatedAt.ToString("dd.MM.yyyy"))</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4'lü Temel İklim ve Karbon Göstergeleri Matrisi -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+            
+            <div style="border: 1px solid #10b981; background: #ecfdf5; border-radius: 8px; padding: 1rem; text-align: center;">
+                <div style="font-size: 0.68rem; font-weight: 800; color: #065f46; text-transform: uppercase;">Önlenen Net Karbon</div>
+                <div style="font-size: 1.6rem; font-weight: 900; color: #064e3b; margin: 0.2rem 0; font-family: var(--font-mono, monospace);">
+                    @carbonTons.ToString("N2")
+                </div>
+                <div style="font-size: 0.7rem; color: #047857; font-weight: 700;">Ton CO₂e Salımı</div>
+            </div>
+
+            <div style="border: 1px solid #bae6fd; background: #f0f9ff; border-radius: 8px; padding: 1rem; text-align: center;">
+                <div style="font-size: 0.68rem; font-weight: 800; color: #0369a1; text-transform: uppercase;">Ağaç Yutağı Denkliği</div>
+                <div style="font-size: 1.6rem; font-weight: 900; color: #075985; margin: 0.2rem 0; font-family: var(--font-mono, monospace);">
+                    @trees
+                </div>
+                <div style="font-size: 0.7rem; color: #0284c7; font-weight: 700;">Yetişkin Çam Ağacı / Yıl</div>
+            </div>
+
+            <div style="border: 1px solid #fde68a; background: #fffbeb; border-radius: 8px; padding: 1rem; text-align: center;">
+                <div style="font-size: 0.68rem; font-weight: 800; color: #b45309; text-transform: uppercase;">Fosil Rezerv Tasarrufu</div>
+                <div style="font-size: 1.6rem; font-weight: 900; color: #92400e; margin: 0.2rem 0; font-family: var(--font-mono, monospace);">
+                    @barrelsOil
+                </div>
+                <div style="font-size: 0.7rem; color: #d97706; font-weight: 700;">Varil Ham Petrol</div>
+            </div>
+
+            <div style="border: 1px solid #ddd6fe; background: #f5f3ff; border-radius: 8px; padding: 1rem; text-align: center;">
+                <div style="font-size: 0.68rem; font-weight: 800; color: #6d28d9; text-transform: uppercase;">Depolama Hacmi</div>
+                <div style="font-size: 1.6rem; font-weight: 900; color: #5b21b6; margin: 0.2rem 0; font-family: var(--font-mono, monospace);">
+                    @landfillM3
+                </div>
+                <div style="font-size: 0.7rem; color: #7c3aed; font-weight: 700;">m³ Çöp Alanı Tasarrufu</div>
+            </div>
+
+        </div>
+
+        <!-- İkili Blok: Sol Teknik Doğrulama - Sağ Karekod ve Mühür -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+            
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.2rem;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: var(--slate-700); text-transform: uppercase; margin-bottom: 0.6rem;">
+                    Teknik Laboratuvar ve Kalite Parametreleri
+                </div>
+                <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.85rem; color: var(--slate-700); line-height: 1.6;">
+                    <li><strong>Net Tartım:</strong> @Model.WeightKg.ToString("N0") kg (@weightTons Ton)</li>
+                    <li><strong>Doğrulanan Kimyasal Saflık:</strong> %@Model.PurityPercent.ToString("0.0")</li>
+                    <li><strong>Kirlilik ve Nem Oranı:</strong> %@Model.ContaminationPercent.ToString("0.0")</li>
+                    <li><strong>Yapay Zeka Analiz Durumu:</strong> Spektroskopik Görsel Doğrulama Tamamlandı</li>
+                    <li><strong>AB CBAM Vergi Kalkanı Değeri:</strong> Yaklaşık €@cbamEuros.ToString("N0")</li>
+                </ul>
+            </div>
+
+            <div style="border: 1px solid #064e3b; border-radius: 8px; padding: 1rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f0fdf4;">
+                <img src="@qrSvgUrl" alt="Doğrulama QR Kodu" style="width: 110px; height: 110px; border: 1px solid #10b981; border-radius: 6px; padding: 4px; background: white;" />
+                <span style="font-size: 0.68rem; font-weight: 800; color: #064e3b; margin-top: 0.5rem; text-transform: uppercase;">
+                    CANLI DİJİTAL DOĞRULAMA
+                </span>
+                <span style="font-size: 0.65rem; color: var(--slate-500);">Kameranızla okutunuz</span>
+            </div>
+
+        </div>
+
+        <!-- Mühür ve İmza Alanı -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; border-top: 2px dashed #cbd5e1; padding-top: 1.5rem; margin-top: 1.5rem;">
+            <div style="text-align: center;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: var(--slate-600); text-transform: uppercase;">Bildiren Tesis Yetkilisi</div>
+                <div style="height: 50px; display: flex; align-items: center; justify-content: center; color: var(--slate-400); font-style: italic; font-size: 0.85rem;">
+                    [Elektronik İmza ile İmzalanmıştır]
+                </div>
+                <div style="font-weight: 800; font-size: 0.85rem; color: var(--slate-900);">@Model.Company?.Name</div>
+                <div style="font-size: 0.72rem; color: var(--slate-500);">Çevre ve Kalite Departmanı</div>
+            </div>
+
+            <div style="text-align: center;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: #064e3b; text-transform: uppercase;">T.C. Gaziantep OSB Bölge Denetçisi</div>
+                <div style="height: 50px; display: flex; align-items: center; justify-content: center; color: #059669; font-weight: 800; font-size: 0.95rem; font-family: var(--font-mono, monospace);">
+                    ONAYLANDI VE TESCİL EDİLDİ
+                </div>
+                <div style="font-weight: 800; font-size: 0.85rem; color: var(--slate-900);">Döngüsel Ekonomi Doğrulama Masası</div>
+                <div style="font-size: 0.72rem; color: var(--slate-500);">Gaziantep OSB Dijital Malzeme Sicili</div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+    @@media print {
+        header, footer, .no-print, .btn {
+            display: none !important;
+        }
+        body {
+            background: white !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .certificate-page-wrap {
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .certificate-paper {
+            border: 2px solid #064e3b !important;
+            box-shadow: none !important;
+            padding: 2.2rem 2rem !important;
+        }
+    }
+</style>

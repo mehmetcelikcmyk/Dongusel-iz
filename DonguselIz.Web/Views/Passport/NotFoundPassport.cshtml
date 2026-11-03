@@ -1,0 +1,14 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Pasaport Bulunamadı";
+    var code = ViewBag.NotFoundCode as string;
+}
+
+<div class="page-wrap" style="max-width: 600px; text-align: center; padding: 4rem 1rem;">
+    <div style="font-size: 3.5rem; margin-bottom: 1rem;">🔍</div>
+    <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--slate-900); margin-bottom: 0.5rem;">Pasaport Kaydı Bulunamadı</h2>
+    <p style="font-size: 0.95rem; color: var(--slate-600); line-height: 1.5; margin-bottom: 1.5rem;">
+        <strong>@(code ?? "Belirtilen kod")</strong> ile eşleşen bir Dijital Malzeme Pasaportu Gaziantep OSB sicilinde kayıtlı değil veya henüz onaylanmamış.
+    </p>
+    <a asp-controller="Demo" asp-action="Index" class="btn btn-primary">Ana Sayfaya Dön</a>
+</div>
