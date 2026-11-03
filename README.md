@@ -1,117 +1,127 @@
 <div align="center">
 
-# 🌿 Döngüsel İz
+# Döngüsel İz
+### Endüstriyel Simbiyoz ve Dijital Malzeme Pasaportu Platformu
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=3000&pause=1000&color=10B981&center=true&vCenter=true&width=550&lines=Sanayi+At%C4%B1klar%C4%B1n%C4%B1+Hammaddeye+D%C3%B6n%C3%BC%C5%9Ft%C3%BCr%C3%BCn;Dijital+%C3%9Cr%C3%BCn+Pasaportu+ile+%C5%9Eeffaf+Takip;Yapay+Zeka+Destekli+End%C3%BCstriyel+Simbiyoz" alt="Döngüsel İz Başlık Animasyonu" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=3000&pause=1000&color=059669&center=true&vCenter=true&width=550&lines=Sanayi+At%C4%B1klar%C4%B1n%C4%B1+Hammaddeye+D%C3%B6n%C3%BC%C5%9Ft%C3%BCr%C3%BCn;Dijital+Malzeme+Pasaportu+ile+%C5%9Eeffaf+Takip;G%C3%B6rsel+Yapay+Zeka+ile+Anl%C4%B1k+At%C4%B1k+Do%C4%9Frulama" alt="Döngüsel İz Tanıtım" />
 </p>
 
 <p align="center">
-  Organize sanayi bölgelerinde döngüsel ekonomiyi hayata geçiren, atık malzemelerin çapraz sektör eşleştirmesini yapan ve dijital ürün pasaportu üreten sürdürülebilirlik platformu.
+  Organize Sanayi Bölgelerinde atık malzemelerin çapraz sektörler arasında ikincil hammaddeye dönüştürülmesini sağlayan, dijital ürün pasaportu üreten ve karbon salımını şeffaf şekilde belgeleyen kurumsal ekosistem.
 </p>
 
 <p align="center">
+  <a href="https://donguselizweb.celikcelik156.workers.dev/" target="_blank">
+    <img src="https://img.shields.io/badge/CANLI_S%C4%B0STEM-G%C4%B0R%C4%B0%C5%9E_YAP-059669?style=for-the-badge&logo=cloudflarepages&logoColor=white" alt="Canlı Sistem" />
+  </a>
   <img src="https://img.shields.io/badge/.NET-10.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET" />
-  <img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white" alt="C#" />
-  <img src="https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
   <img src="https://img.shields.io/badge/Groq-Vision_AI-F05A28?style=for-the-badge&logo=fastapi&logoColor=white" alt="Groq Vision" />
-  <img src="https://img.shields.io/badge/Cloudflare_Pages-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare Pages" />
+  <img src="https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
+  <img src="https://img.shields.io/badge/Cloudflare-Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare Workers" />
 </p>
 
 </div>
 
 ---
 
-## 🎯 Projenin Amacı
+<div align="center">
+  <h3>Canlı Sistem Ekranı</h3>
+  <p>Cloudflare Workers ve bağımsız istemci üzerinde 7/24 kesintisiz çalışan kullanıcı arayüzü</p>
+  <a href="https://donguselizweb.celikcelik156.workers.dev/" target="_blank">
+    <img src="docs/screenshots/donguseliz-live.png" alt="Döngüsel İz Canlı Arayüz" width="95%" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);" />
+  </a>
+  <p>
+    <b>Canlı Bağlantı</b> <a href="https://donguselizweb.celikcelik156.workers.dev/">donguselizweb.celikcelik156.workers.dev</a>
+  </p>
+</div>
 
-Sanayi tesislerinin üretim süreçlerinde açığa çıkan değerli yan ürünler ve atıklar çoğu zaman çöpe gitmekte veya değerinin çok altında elden çıkarılmaktadır. Döngüsel İz platformu, bir fabrikanın atığını başka bir fabrikanın hammaddesine dönüştürür. Süreci uçtan uca dijitalleştirerek karbon salımını düşürür ve sanayide kaynak verimliliği sağlar.
+---
+
+<div align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=17&duration=3000&pause=1000&color=0284C7&center=true&vCenter=true&width=500&lines=End%C3%BCstriyel+Simbiyoz+ve+%C4%B0%C5%9Fleyi%C5%9F+Mimarisi;At%C4%B1k+%C3%9Creticisinden+Hammadde+Al%C4%B1c%C4%B1s%C4%B1na" alt="Mimari Başlık" />
+</div>
+
+## Sistemin Çözdüğü Sorun
+
+Sanayi tesislerinin üretiminde ortaya çıkan yan ürünler ve atıklar çoğu zaman çöpe gitmekte veya çok düşük bedellerle bertaraf edilmektedir. Döngüsel İz, bir fabrikanın atığını diğer sektördeki fabrikanın hammaddesine dönüştürür. Süreci uçtan uca dijitalleştirerek karbon salımını düşürür ve kaynak verimliliği sağlar.
 
 ```
-+------------------+         +---------------------+         +--------------------+
-|   Atık Üreticisi | ------> |    Döngüsel İz      | ------> |   Hammadde Alıcısı |
-|   Fabrika A      |         | Yapay Zeka ve Takip |         |   Fabrika B        |
-+------------------+         +---------------------+         +--------------------+
++---------------------+        +------------------------+        +---------------------+
+|   Atık Üreticisi    | -----> |   Döngüsel İz Motoru   | -----> |  Hammadde Alıcısı   |
+|   Tekstil Fabrikası |        |  Yapay Zeka ve Takip   |        |  Yalıtım Fabrikası  |
++---------------------+        +------------------------+        +---------------------+
 ```
 
 ---
 
-## 🚀 Öne Çıkan Özellikler
+<div align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=17&duration=3000&pause=1000&color=7C3AED&center=true&vCenter=true&width=500&lines=Yapay+Zeka+ve+Malzeme+Pasaportu;Tam+Denetim+ve+%C5%9Eeffaf+Do%C4%9Frulama" alt="Özellikler Başlık" />
+</div>
 
-### 🔍 Görsel Yapay Zeka ile Atık Analizi
-Sisteme yüklenen sanayi numunesi fotoğrafları görsel yapay zeka modelleriyle taranır. Malzemenin cinsi, saflık yüzdesi, kontaminasyon oranı ve uygun endüstriyel kategori saniyeler içinde otomatik çıkarılır.
+## Temel Yetenekler
 
-### 📜 Dijital Ürün Pasaportu
-Her parti atık malzeme için benzersiz bir pasaport oluşturulur. Malzemenin kimyasal özellikleri, geri dönüştürülebilirlik oranı ve karbon tasarrufu herkese açık doğrulama bağlantılarıyla kayıt altına alınır.
+### Görsel Yapay Zeka ile Otomatik Analiz
+Sisteme yüklenen malzeme numunesi fotoğrafları görsel yapay zeka modelleriyle taranır. Malzemenin cinsi, saflık oranı, yabancı madde yüzdesi ve uygun sanayi kategorisi saniyeler içinde otomatik tespit edilir.
 
-### 🔄 Akıllı Simbiyoz Eşleştirme
-Farklı sektörlerden firmaların girdi ve çıktı ihtiyaçları karşılaştırılır. Tekstil atıklarının yalıtım sektörüne, polimer kırıklarının plastik ambalaj üretimine yönlendirilmesi gibi yüksek katma değerli eşleşmeler otomatik önerilir.
+### Dijital Malzeme Pasaportu
+Her parti atık için benzersiz doğrulama koduna sahip bir dijital pasaport üretilir. Malzemenin teknik özellikleri, geri dönüştürülebilirlik oranı ve önlenen karbon salımı kayıt altına alınır.
 
-### 📊 Karbon Ayak İzi ve Çevre Paneli
-Tesis bazında geri kazanılan malzeme miktarı, önlenen karbon salımı ve tasarruf edilen doğal kaynak verileri gerçek zamanlı grafiklerle raporlanır.
+### Çapraz Sektör Simbiyoz Eşleştirmesi
+Farklı sektörlerdeki firmaların hammadde ihtiyaçları taranır. Tekstil artıklarının akustik yalıtıma, polimer kırıklarının plastik enjeksiyon sektörüne yönlendirilmesi gibi katma değerli eşleşmeler sistem tarafından önerilir.
+
+### Karbon Ayak İzi ve Sürdürülebilirlik Raporu
+Geri kazanılan malzeme miktarı, önlenen karbon emisyonu ve tasarruf edilen doğal kaynak verileri firma bazında grafiklerle raporlanır.
 
 ---
 
-## 🧱 Proje Mimarisi
+## Proje Yapısı
 
-Çözüm iki ana bileşenden oluşur.
+Platform iki tamamlayıcı bileşenden oluşur.
 
-### 1. DonguselIz.Web
-Kurumsal kullanıcı panellerini, üyelik sistemini, atık pazar yerini ve detaylı analizleri barındıran tam teşekküllü web uygulamasıdır.
+### DonguselIz.Web
+Kurumsal kullanıcı panellerini, üyelik sistemini, atık pazar yerini ve arka plan analiz servislerini barındıran tam teşekküllü web platformudur.
 - ASP.NET Core MVC altyapısı
-- Entity Framework Core ve SQLite veri katmanı
-- Groq Vision servis entegrasyonu
-- Rol bazlı yetkilendirme ve güvenli oturum yönetimi
+- Entity Framework Core ve SQLite veri tabanı
+- Groq Vision servis katmanı
+- Rol bazlı yetkilendirme ve oturum yönetimi
 
-### 2. DonguselIz.Studio
-Yarışma, sunum ve hızlı prototipleme süreçleri için tasarlanmış bağımsız tek sayfalık istemcidir.
-- Kurulum veya sunucu gerektirmez
-- Google AI Studio ve Cloudflare Pages üzerinde doğrudan çalışır
-- Hafif arayüz bileşenleri ve hızlı test araçları içerir
+### DonguselIz.Studio
+Cloudflare Pages ve sunucusuz mimariler için optimize edilmiş hafif istemcidir.
+- Kurulum veya harici derleme gerektirmez
+- Cloudflare Workers üzerinden canlı yayındadır
+- Hızlı prototipleme ve bağımsız kullanım imkanı sunar
 
 ---
 
-## 💻 Yerel Kurulum
+## Yerel Kurulum
 
-Projeyi kendi bilgisayarınızda ayağa kaldırmak için aşağıdaki adımları izleyebilirsiniz.
+Projeyi bilgisayarınızda çalıştırmak için aşağıdaki adımları takip edebilirsiniz.
 
-### Gereksinimler
-- .NET 10 SDK
-- Git
-
-### Adımlar
-
-1. Depoyu bilgisayarınıza klonlayın
+1. Depoyu klonlayın
 ```bash
 git clone https://github.com/mehmetcelikcmyk/Dongusel-iz.git
 cd Dongusel-iz
 ```
 
-2. Web uygulamasının bulunduğu klasöre geçin
+2. Web projesi klasörüne geçin
 ```bash
 cd DonguselIz.Web
 ```
 
-3. Bağımlılıkları yükleyin ve projeyi çalıştırın
+3. Bağımlılıkları yükleyin ve uygulamayı başlatın
 ```bash
 dotnet restore
 dotnet run
 ```
 
-4. Tarayıcınızdan uygulamayı açın
+4. Tarayıcınızdan yerel adrese gidin
 ```
 http://localhost:5000
 ```
 
 ---
 
-## 🛡️ Güvenlik Notu
-
-Uygulamanın yapay zeka analiz özelliklerini aktif kullanmak için Groq API anahtarınızı ortam değişkeni olarak tanımlayabilir veya `appsettings.json` içerisindeki ilgili alana ekleyebilirsiniz. Güvenlik gerekçesiyle açık anahtarlar depoya dahil edilmemiştir.
-
----
-
 <div align="center">
-
-Döngüsel ekonomi ve sürdürülebilir sanayi için geliştirilmiştir.
-
+  <p>Döngüsel ekonomi ve sürdürülebilir sanayi için geliştirilmiştir.</p>
 </div>
